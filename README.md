@@ -11,7 +11,7 @@ Full-stack team task manager with role-based access — **Admin** vs **Member**.
 - **Dashboard** — totals by status plus **overdue** (past due and not Completed), scoped by role.
 - **Team directory** — admin-only page with search and role filter.
 - **Profile** — change name, email, and password (password change requires current password).
-- **UI** — indigo-on-slate dark theme, Inter font, custom Modal, ConfirmDialog, Select, and DateTimePicker (no native browser controls anywhere), skeleton states, toasts, error boundary.
+- **UI** — light emerald-on-slate theme, Inter font, custom Modal, ConfirmDialog, Select, and DateTimePicker (no native browser controls anywhere), skeleton states, toasts, error boundary.
 
 ## Layout
 
