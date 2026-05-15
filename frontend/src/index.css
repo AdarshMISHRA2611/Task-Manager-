@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply min-h-screen bg-slate-950 text-slate-100;
+  }
+  ::selection {
+    @apply bg-brand-500/40 text-white;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-300 via-teal-300 to-cyan-400 bg-clip-text text-transparent;
+  }
+  .surface-grid {
+    background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(20, 184, 166, 0.16), transparent);
+  }
+}
+
+/* Focus rings for a11y */
+@layer components {
+  .focus-ring {
+    @apply outline-none ring-2 ring-brand-500/60 ring-offset-2 ring-offset-slate-950;
+  }
+}
