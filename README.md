@@ -7,7 +7,7 @@ Full-stack team task manager with role-based access — **Admin** vs **Member**.
 - **Authentication** — sign up, sign in, JWT bearer tokens, bcrypt-hashed passwords, protected routes on UI + API. The **first user to sign up becomes Admin**; everyone after joins as Member.
 - **Projects** — admins create, edit, and delete projects. Members only see projects they belong to. The creator is auto-added as a member.
 - **Members** — many-to-many users ↔ projects via `project_members`. Admins add or remove members and can promote/demote any member (except the last admin, except themselves).
-- **Tasks** — statuses **Todo**, **In Progress**, **Completed**; optional due date and assignee. Admins manage all fields; members may **only change the status** of tasks assigned to them.
+- **Tasks** — statuses **Todo**, **In Progress**, **Completed**; optional due date and assignee. Admins manage all fields; members may **only change the status** of tasks assigned to them. The `/tasks` page offers a **List ↔ Board** toggle: the Kanban board has three columns with drag-and-drop (drag is enabled only when the current user can change the task's status), and a **filter bar** for search, status, project, and assignee.
 - **Dashboard** — totals by status plus **overdue** (past due and not Completed), scoped by role.
 - **Team directory** — admin-only page with search and role filter.
 - **Profile** — change name, email, and password (password change requires current password).
