@@ -3,12 +3,17 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import {
+  Calendar,
+  LayoutGrid,
   ListChecks,
   Loader2,
   Pencil,
   Plus,
+  Search,
+  Table2,
   Trash2,
   UserCircle2,
+  X,
 } from "lucide-react";
 import { api, getErrorMessage } from "@/services/api";
 import { qk } from "@/services/queryClient";
@@ -31,6 +36,13 @@ import { Modal } from "@/components/ui/Modal";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 type TaskErrors = { title?: string; project_id?: string };
+type ViewMode = "list" | "board";
+
+const BOARD_COLUMNS: { status: TaskStatus; dotClass: string }[] = [
+  { status: "Todo", dotClass: "bg-slate-400" },
+  { status: "In Progress", dotClass: "bg-amber-500" },
+  { status: "Completed", dotClass: "bg-emerald-500" },
+];
 
 function formatDue(iso: string | null | undefined) {
   if (!iso) return "—";
@@ -77,6 +89,17 @@ export default function TasksPage() {
 
   const projects = projectsQuery.data ?? [];
   const tasks = tasksQuery.data ?? [];
+
+  // View + filters
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [projectFilter, setProjectFilter] = useState<string>("all");
+  const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
+
+  // Drag-and-drop
+  const [draggingTaskId, setDraggingTaskId] = useState<number | null>(null);
+  const [dragOverColumn, setDragOverColumn] = useState<TaskStatus | null>(null);
 
   // Create task form (admin only)
   const [newProjectId, setNewProjectId] = useState<number | "">("");
@@ -254,6 +277,184 @@ export default function TasksPage() {
     description: m.email,
   }));
 
+  // Filter options derived from current data
+  const statusFilterOptions = useMemo(
+    () => [
+      { value: "all", label: "All statuses" },
+      ...TASK_STATUS_OPTIONS.map((s) => ({ value: s, label: s })),
+    ],
+    [],
+  );
+
+  const projectFilterOptions = useMemo(
+    () => [
+      { value: "all", label: "All projects" },
+      ...projects.map((p) => ({ value: String(p.id), label: p.name })),
+    ],
+    [projects],
+  );
+
+  const assigneeFilterOptions = useMemo(() => {
+    const ids = new Set<number>();
+    for (const t of tasks) if (t.assigned_to != null) ids.add(t.assigned_to);
+    return [
+      { value: "all", label: "All assignees" },
+      { value: "unassigned", label: "Unassigned" },
+      ...Array.from(ids)
+        .sort((a, b) => a - b)
+        .map((id) => ({
+          value: String(id),
+          label: id === user?.id ? "You" : `User #${id}`,
+        })),
+    ];
+  }, [tasks, user?.id]);
+
+  const hasActiveFilters =
+    !!searchQuery.trim() ||
+    statusFilter !== "all" ||
+    projectFilter !== "all" ||
+    assigneeFilter !== "all";
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setProjectFilter("all");
+    setAssigneeFilter("all");
+  };
+
+  const filteredTasks = useMemo(() => {
+    let result = tasks;
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      result = result.filter(
+        (t) =>
+          t.title.toLowerCase().includes(q) ||
+          (t.description ?? "").toLowerCase().includes(q),
+      );
+    }
+    if (statusFilter !== "all") {
+      result = result.filter((t) => t.status === statusFilter);
+    }
+    if (projectFilter !== "all") {
+      result = result.filter((t) => String(t.project_id) === projectFilter);
+    }
+    if (assigneeFilter !== "all") {
+      if (assigneeFilter === "unassigned") {
+        result = result.filter((t) => t.assigned_to == null);
+      } else {
+        result = result.filter((t) => String(t.assigned_to ?? "") === assigneeFilter);
+      }
+    }
+    return result;
+  }, [tasks, searchQuery, statusFilter, projectFilter, assigneeFilter]);
+
+  // Drag-and-drop handlers
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, taskId: number) => {
+    setDraggingTaskId(taskId);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", String(taskId));
+  };
+
+  const handleDragEnd = () => {
+    setDraggingTaskId(null);
+    setDragOverColumn(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, status: TaskStatus) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverColumn !== status) setDragOverColumn(status);
+  };
+
+  const handleDragLeave = (status: TaskStatus) => {
+    if (dragOverColumn === status) setDragOverColumn(null);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, status: TaskStatus) => {
+    e.preventDefault();
+    setDragOverColumn(null);
+    const idStr = e.dataTransfer.getData("text/plain");
+    const id = Number(idStr);
+    if (!id) return;
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
+    if (task.status === status) return;
+    const canChange = isAdmin || task.assigned_to === user?.id;
+    if (!canChange) {
+      toast.error("You can only change status on tasks assigned to you.");
+      return;
+    }
+    updateStatusMutation.mutate({ taskId: id, status });
+  };
+
+  const renderTaskCard = (t: Task) => {
+    const project = projectsById.get(t.project_id);
+    const canChange = isAdmin || t.assigned_to === user?.id;
+    const isDragging = draggingTaskId === t.id;
+    return (
+      <div
+        key={t.id}
+        draggable={canChange}
+        onDragStart={(e) => canChange && handleDragStart(e, t.id)}
+        onDragEnd={handleDragEnd}
+        className={`group rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+          canChange ? "cursor-grab active:cursor-grabbing" : "cursor-default"
+        } ${isDragging ? "opacity-50" : ""}`}
+      >
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-sm font-medium text-slate-900">{t.title}</p>
+          {isAdmin && (
+            <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
+              <button
+                type="button"
+                onClick={() => openEdit(t)}
+                className="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-ring"
+                aria-label="Edit task"
+              >
+                <Pencil className="h-3.5 w-3.5" aria-hidden />
+              </button>
+              <button
+                type="button"
+                onClick={() => onDelete(t)}
+                className="rounded-md p-1 text-slate-500 hover:bg-rose-50 hover:text-rose-600 focus-ring"
+                aria-label="Delete task"
+              >
+                <Trash2 className="h-3.5 w-3.5" aria-hidden />
+              </button>
+            </div>
+          )}
+        </div>
+        {t.description && (
+          <p className="mt-1 line-clamp-2 text-xs text-slate-600">{t.description}</p>
+        )}
+        <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
+          {project && (
+            <Link
+              to={`/projects/${project.id}`}
+              className="rounded-md bg-slate-100 px-2 py-0.5 text-slate-700 hover:bg-slate-200"
+            >
+              {project.name}
+            </Link>
+          )}
+          {t.due_date && (
+            <span className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-0.5 ring-1 ring-slate-200">
+              <Calendar className="h-3 w-3" aria-hidden />
+              {formatDue(t.due_date)}
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1">
+            <UserCircle2 className="h-3 w-3 text-slate-400" aria-hidden />
+            {t.assigned_to == null
+              ? "Unassigned"
+              : t.assigned_to === user?.id
+                ? "You"
+                : `User #${t.assigned_to}`}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
@@ -382,26 +583,174 @@ export default function TasksPage() {
         </Card>
       )}
 
-      <Card padding={false}>
-        {tasksQuery.isLoading ? (
+      <Card>
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="flex-1 min-w-[200px]">
+            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              Search
+            </label>
+            <div className="relative mt-1">
+              <Search
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                aria-hidden
+              />
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Title or description"
+                className="w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-400 focus-ring"
+              />
+            </div>
+          </div>
+          <div className="w-full sm:w-40">
+            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              Status
+            </label>
+            <Select<string>
+              value={statusFilter}
+              onChange={(v) => setStatusFilter(v)}
+              options={statusFilterOptions}
+            />
+          </div>
+          <div className="w-full sm:w-48">
+            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              Project
+            </label>
+            <Select<string>
+              value={projectFilter}
+              onChange={(v) => setProjectFilter(v)}
+              options={projectFilterOptions}
+              searchable
+            />
+          </div>
+          {isAdmin && (
+            <div className="w-full sm:w-44">
+              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                Assignee
+              </label>
+              <Select<string>
+                value={assigneeFilter}
+                onChange={(v) => setAssigneeFilter(v)}
+                options={assigneeFilterOptions}
+              />
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
+                <X className="h-3.5 w-3.5" aria-hidden /> Clear
+              </Button>
+            )}
+            <div className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5">
+              <button
+                type="button"
+                onClick={() => setViewMode("list")}
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition focus-ring ${
+                  viewMode === "list"
+                    ? "bg-brand-600 text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+                aria-pressed={viewMode === "list"}
+              >
+                <Table2 className="h-3.5 w-3.5" aria-hidden /> List
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("board")}
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition focus-ring ${
+                  viewMode === "board"
+                    ? "bg-brand-600 text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+                aria-pressed={viewMode === "board"}
+              >
+                <LayoutGrid className="h-3.5 w-3.5" aria-hidden /> Board
+              </button>
+            </div>
+          </div>
+        </div>
+        {hasActiveFilters && !tasksQuery.isLoading && (
+          <p className="mt-3 text-xs text-slate-500">
+            Showing {filteredTasks.length} of {tasks.length}
+            {filteredTasks.length === 1 ? " task" : " tasks"}.
+          </p>
+        )}
+      </Card>
+
+      {tasksQuery.isLoading ? (
+        <Card padding={false}>
           <div className="space-y-2 p-5">
             <Skeleton className="h-9 w-full" />
             <Skeleton className="h-9 w-full" />
             <Skeleton className="h-9 w-full" />
           </div>
-        ) : tasks.length === 0 ? (
-          <div className="p-5">
-            <EmptyState
-              icon={ListChecks}
-              title="No tasks yet"
-              description={
-                isAdmin
-                  ? "Create the first task above."
-                  : "Nothing has been assigned to you yet."
-              }
-            />
-          </div>
-        ) : (
+        </Card>
+      ) : tasks.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={ListChecks}
+            title="No tasks yet"
+            description={
+              isAdmin
+                ? "Create the first task above."
+                : "Nothing has been assigned to you yet."
+            }
+          />
+        </Card>
+      ) : filteredTasks.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={Search}
+            title="No matches"
+            description="Try adjusting search or filters."
+            action={
+              <Button variant="secondary" size="sm" onClick={clearFilters}>
+                Clear filters
+              </Button>
+            }
+          />
+        </Card>
+      ) : viewMode === "board" ? (
+        <div className="grid gap-4 lg:grid-cols-3">
+          {BOARD_COLUMNS.map((col) => {
+            const colTasks = filteredTasks.filter((t) => t.status === col.status);
+            const isOver = dragOverColumn === col.status;
+            return (
+              <div
+                key={col.status}
+                onDragOver={(e) => handleDragOver(e, col.status)}
+                onDragLeave={() => handleDragLeave(col.status)}
+                onDrop={(e) => handleDrop(e, col.status)}
+                className={`rounded-2xl border p-3 transition ${
+                  isOver
+                    ? "border-brand-400 bg-brand-50/60 ring-2 ring-brand-200"
+                    : "border-slate-200 bg-slate-50/50"
+                }`}
+              >
+                <div className="mb-3 flex items-center justify-between px-1">
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2 w-2 rounded-full ${col.dotClass}`} />
+                    <h3 className="text-sm font-semibold text-slate-900">{col.status}</h3>
+                  </div>
+                  <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+                    {colTasks.length}
+                  </span>
+                </div>
+                <div className="min-h-[120px] space-y-2">
+                  {colTasks.length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-slate-300 bg-white/60 px-3 py-6 text-center text-xs text-slate-400">
+                      Drop tasks here
+                    </div>
+                  ) : (
+                    colTasks.map(renderTaskCard)
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <Card padding={false}>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200 text-sm">
               <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
@@ -417,7 +766,7 @@ export default function TasksPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {tasks.map((t) => {
+                {filteredTasks.map((t) => {
                   const project = projectsById.get(t.project_id);
                   const canChangeStatus =
                     isAdmin || (user?.id !== undefined && t.assigned_to === user.id);
@@ -488,8 +837,8 @@ export default function TasksPage() {
               </tbody>
             </table>
           </div>
-        )}
-      </Card>
+        </Card>
+      )}
 
       <Modal
         open={!!editingTask}
