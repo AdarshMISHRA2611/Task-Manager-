@@ -37,6 +37,16 @@ class Settings(BaseSettings):
             "http://localhost:3000",
         ]
 
+    @field_validator("DATABASE_URL")
+    @classmethod
+    def normalize_database_url(cls, v: str) -> str:
+        url = str(v).strip()
+        if url.startswith("postgres://"):
+            return "postgresql+psycopg://" + url[len("postgres://") :]
+        if url.startswith("postgresql://") and "+psycopg" not in url.split("://", 1)[0]:
+            return "postgresql+psycopg://" + url[len("postgresql://") :]
+        return url
+
     @field_validator("SECRET_KEY")
     @classmethod
     def secret_not_empty(cls, v: str) -> str:
