@@ -1,139 +1,117 @@
-# Ethara Workboard
+# Team Task Manager
 
-Full-stack app for **initiatives (projects)**, **rosters**, **work items (tasks)**, and **role-based access** — **Admin** vs **Member**. Stack: **FastAPI**, **SQLAlchemy**, **JWT**, **bcrypt** on the API side; **React**, **TypeScript**, **Vite**, **Tailwind** on the UI.
+Full-stack team task manager with role-based access — **Admin** vs **Member**. Stack: **FastAPI**, **SQLAlchemy**, **JWT**, **bcrypt** on the API side; **React 18**, **TypeScript**, **Vite**, **Tailwind CSS**, **TanStack Query** on the UI.
 
 ## Features
 
-- **Authentication**: Sign up, sign in, JWT bearer tokens, hashed passwords, protected routes on both UI and API.
-- **Initiatives**: Admins create, update, or remove initiatives (`projects` in the API). Members only see initiatives where they appear in `project_members`. The creator is added as a member automatically.
-- **Roster**: Many-to-many **users ↔ initiatives** via `project_members`; admins invite from the user directory.
-- **Work items**: Stages **Queued**, **Active**, **Done**; optional due date; optional owner (`assigned_to`). Admins manage all fields; members may **change stage only** on items assigned to them.
-- **Overview**: Totals by stage plus **overdue** (past due and not **Done**), filtered by role the same way as the task list.
-- **UI**: Teal-forward theme, Plus Jakarta Sans, responsive shell, skeleton states, toasts, and error boundary.
+- **Authentication** — sign up, sign in, JWT bearer tokens, bcrypt-hashed passwords, protected routes on UI + API. The **first user to sign up becomes Admin**; everyone after joins as Member.
+- **Projects** — admins create, edit, and delete projects. Members only see projects they belong to. The creator is auto-added as a member.
+- **Members** — many-to-many users ↔ projects via `project_members`. Admins add or remove members and can promote/demote any member (except the last admin, except themselves).
+- **Tasks** — statuses **Todo**, **In Progress**, **Completed**; optional due date and assignee. Admins manage all fields; members may **only change the status** of tasks assigned to them.
+- **Dashboard** — totals by status plus **overdue** (past due and not Completed), scoped by role.
+- **Team directory** — admin-only page with search and role filter.
+- **Profile** — change name, email, and password (password change requires current password).
+- **UI** — indigo-on-slate dark theme, Inter font, custom Modal, ConfirmDialog, Select, and DateTimePicker (no native browser controls anywhere), skeleton states, toasts, error boundary.
 
 ## Layout
 
 ```text
 backend/
-  main.py
-  config.py
+  main.py            # FastAPI app, CORS, routers, SPA fallback
+  config.py          # Pydantic settings
   requirements.txt
-  routers/        # auth, projects, tasks, dashboard, users
-  models/
-  schemas/
-  database/
-  utils/
+  database/database.py
+  models/models.py   # User, Project, ProjectMember, Task
+  schemas/schemas.py # Pydantic schemas
+  routers/           # auth, projects, tasks, dashboard, users
+  utils/             # security (JWT, bcrypt), deps (DI)
 
 frontend/src/
-  components/
-  pages/
-  services/
+  App.tsx            # routes + providers
+  components/        # AppLayout, Navbar, Sidebar, ProtectedRoute, ErrorBoundary
+  components/ui/     # Button, Card, Modal, ConfirmDialog, Select,
+                     # DateTimePicker, StatusBadge, Skeleton, EmptyState, hooks
+  pages/             # Login, Signup, Dashboard, Projects, ProjectDetail,
+                     # Tasks, Team, Profile
+  services/          # api, authContext, queryClient, types
+
+Dockerfile           # multi-stage: build frontend → copy into FastAPI image
+railway.json
+.env.example
 ```
 
-## Environment
+## API surface
 
-Copy `.env.example` to `.env` and adjust.
+| Method | Path | Role | Notes |
+|---|---|---|---|
+| POST | `/api/auth/signup` | public | First user → Admin, rest → Member |
+| POST | `/api/auth/login` | public | Returns `{ access_token, token_type }` |
+| GET | `/api/auth/me` | bearer | Current user |
+| PATCH | `/api/auth/me` | bearer | Update name / email / password |
+| GET | `/api/projects` | bearer | Admin: all. Member: joined only |
+| POST | `/api/projects` | admin | Creator auto-added as member |
+| GET / PUT / DELETE | `/api/projects/{id}` | bearer / admin / admin | |
+| GET / POST | `/api/projects/{id}/members` | bearer / admin | |
+| DELETE | `/api/projects/{id}/members/{user_id}` | admin | |
+| GET | `/api/tasks` | bearer | Admin: all. Member: assigned only |
+| POST | `/api/tasks` | admin | Assignee must be a project member |
+| GET / PUT / DELETE | `/api/tasks/{id}` | bearer / mixed / admin | Member PUT = status only |
+| GET | `/api/dashboard` | bearer | Stats scoped by role |
+| GET | `/api/users` | admin | Sorted by name |
+| PATCH | `/api/users/{id}/role` | admin | No self-change, no last-admin demote |
+| GET | `/health` `/ready` | public | Liveness + DB readiness |
 
-| Variable | Description |
-|----------|-------------|
-| `ENVIRONMENT` | `development` (default) or `production`. In production, `SECRET_KEY` must be strong (see below) and CORS is tightened. |
-| `CORS_ORIGINS` | Comma-separated browser origins. Use `*` only for debugging. Empty in production when the SPA is served from the **same origin** as the API. |
-| `DATABASE_URL` | SQLAlchemy URL. Default: SQLite file `ethara_local.db`. On Railway use PostgreSQL, e.g. `postgresql+psycopg://USER:PASSWORD@HOST:PORT/DB`. |
-| `SECRET_KEY` | JWT signing secret. In production: **≥ 32 characters**, not a placeholder. |
-| `ALGORITHM` | JWT algorithm (default `HS256`). |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | Access token lifetime (default 1440 = 24h). |
-| `PORT` | HTTP port (Railway sets this). |
-| `VITE_API_URL` | Frontend API base URL. Empty = same-origin `/api`. |
-
-## Local run
-
-**Python 3.12+**, **Node 20+**.
-
-### API
-
-From the repo root (so `backend` is importable):
+## Local development (Windows PowerShell)
 
 ```powershell
-cd "d:\Task Manager\Ethara-task-manager"
+# Create a venv and install Python deps
 python -m venv .venv
-.\.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 pip install -r backend\requirements.txt
 $env:PYTHONPATH = (Get-Location).Path
-python -m uvicorn backend.main:app --reload --port 8000
+
+# Install frontend deps
+npm install --prefix frontend
+
+# Run both servers together
+npx --yes concurrently -n api,ui -c blue,green `
+  ".\.venv\Scripts\python.exe -m uvicorn backend.main:app --reload --reload-dir backend --port 8000" `
+  "npm run dev --prefix frontend"
 ```
 
-- API: `http://127.0.0.1:8000`
-- Docs: `http://127.0.0.1:8000/docs`
+- Backend: <http://localhost:8000>
+- Frontend: <http://localhost:5173>
+- API docs: <http://localhost:8000/docs>
 
-### Frontend
+> Use the full `.\.venv\Scripts\python.exe` path so uvicorn's reload subprocess can't pick up the wrong Python interpreter on Windows.
 
-```powershell
-cd frontend
-npm install
-npm run dev
+## Environment variables
+
+```env
+DATABASE_URL=sqlite:///./team_task_manager.db
+SECRET_KEY=change-me-in-production-use-long-random-string
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
+ENVIRONMENT=development
+CORS_ORIGINS=
 ```
 
-- UI: `http://127.0.0.1:5173` (Vite proxies `/api`, `/health`, `/ready` to port 8000).
+For production (Railway), set `DATABASE_URL` to a Postgres URL (`postgresql+psycopg://…`), `ENVIRONMENT=production`, and a strong `SECRET_KEY` (≥ 32 characters). With `CORS_ORIGINS` empty, the API allows `*.railway.app` origins automatically — perfect for the single-service Docker setup where the UI and API share the same host.
 
-## REST API (summary)
+## Production build (Docker)
 
-Base path: `/api` (auth under `/api/auth`).
+The included multi-stage `Dockerfile` builds the React bundle with Node 20 and copies it into a Python 3.12 image that runs `uvicorn backend.main:app`. FastAPI serves the SPA from `./static` for every non-API path, so the whole app ships as one service.
 
-### Auth
+```bash
+docker build -t team-task-manager .
+docker run -p 8000:8000 --env-file .env team-task-manager
+```
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/auth/signup` | No | Body: `name`, `email`, `password`, `role` (`Admin` \| `Member`). |
-| POST | `/api/auth/login` | No | Returns `{ access_token, token_type }`. |
-| GET | `/api/auth/me` | Bearer | Current user. |
+## Deploy to Railway
 
-### Initiatives (`/api/projects` …)
-
-CRUD and `GET/POST/DELETE .../members` as in OpenAPI — same resource names as typical “projects” APIs; the product UI calls them **initiatives**.
-
-### Work items (`/api/tasks` …)
-
-List/create/get/update/delete — member updates are **stage-only** (same `PUT` with only `status` in the body).
-
-### Overview
-
-| Method | Path | Role | Description |
-|--------|------|------|-------------|
-| GET | `/api/dashboard` | Bearer | `{ total_tasks, queued_tasks, active_tasks, done_tasks, overdue_tasks }`. Admin: all items. Member: assigned items only. |
-
-### Health
-
-- `GET /health` — liveness.
-- `GET /ready` — DB connectivity (`503` if down).
-
-## Validation
-
-Pydantic validates payloads; duplicate emails rejected on signup; assignees must be initiative members; consistent JSON errors with `detail`.
-
-## Railway
-
-1. Add **PostgreSQL** and copy `DATABASE_URL` (use `postgresql+psycopg://...`).
-2. Deploy from this repo with the root **`Dockerfile`** (see `railway.json`).
-3. Set `DATABASE_URL`, `SECRET_KEY` (long random, ≥ 32 chars), `ENVIRONMENT=production`, and `CORS_ORIGINS` if the UI is on another origin.
-4. Health check: **`GET /health`**; optional readiness: **`GET /ready`**.
-5. The container runs **uvicorn** and serves the **built SPA** from `/app/static` for non-API routes.
-
-## Demo checklist
-
-1. Sign up as **Admin**, then sign in.
-2. Under **Initiatives**, create one (you are on the roster automatically).
-3. Sign up a **Member** (e.g. incognito); note their **user id** from the toast.
-4. As Admin, open the initiative → **Roster** → add the member from the directory.
-5. Create **work items** with an owner and optional due date.
-6. As Member, open **Work items** or the initiative and change **stage** only; as Admin, use **Edit** for full fields.
-7. Compare **Overview** on each account (global vs assigned-only).
-
-## Submission
-
-- **Live URL**: your Railway deployment.
-- **GitHub**: this repository.
-- **README**: this file.
-
-## License
-
-Sample / portfolio code unless you add your own license.
+1. Push to GitHub.
+2. On <https://railway.app>, create a new project → "Deploy from GitHub repo".
+3. Add the **PostgreSQL** plugin, copy its connection string.
+4. Set environment variables: `DATABASE_URL`, `SECRET_KEY` (≥ 32 chars), `ENVIRONMENT=production`.
+5. Railway uses the `Dockerfile` automatically (via `railway.json`).
+6. Set the health check path to `/health`. Deploy.

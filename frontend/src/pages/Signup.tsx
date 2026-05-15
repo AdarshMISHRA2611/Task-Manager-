@@ -1,13 +1,33 @@
-import { useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { UserPlus } from "lucide-react";
-import { getErrorMessage } from "@/services/api";
+import { ClipboardCheck, Eye, EyeOff, Lock, Mail, User as UserIcon } from "lucide-react";
 import { useAuth } from "@/services/authContext";
-import type { UserRole } from "@/services/types";
-import { Card } from "@/components/ui/Card";
+import { getErrorMessage } from "@/services/api";
 import { Button } from "@/components/ui/Button";
+
+type Errors = { name?: string; email?: string; password?: string };
+
+function strengthOf(pw: string): { score: 0 | 1 | 2 | 3 | 4 | 5; label: string } {
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/\d/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const labels = ["", "Weak", "Fair", "Good", "Strong", "Excellent"];
+  return { score: score as 0 | 1 | 2 | 3 | 4 | 5, label: labels[score]! };
+}
+
+const STRENGTH_COLORS = [
+  "bg-slate-200",
+  "bg-rose-400",
+  "bg-orange-400",
+  "bg-amber-400",
+  "bg-lime-500",
+  "bg-emerald-500",
+];
 
 export default function SignupPage() {
   const { signup } = useAuth();
@@ -16,99 +36,168 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<UserRole>("Member");
+  const [showPw, setShowPw] = useState(false);
+  const [errors, setErrors] = useState<Errors>({});
+
+  const pwStrength = useMemo(() => strengthOf(password), [password]);
 
   const mutation = useMutation({
-    mutationFn: () => signup(name, email, password, role),
-    onSuccess: (created) => {
-      toast.success(`Profile ready. User ID ${created.id} — keep it handy when an admin adds you to a roster.`, {
-        duration: 6000,
-      });
-      navigate("/login", { replace: true });
+    mutationFn: async () => {
+      await signup(name.trim(), email.trim(), password);
     },
-    onError: (e) => toast.error(getErrorMessage(e)),
+    onSuccess: () => {
+      toast.success("Account created. Welcome aboard.");
+      navigate("/dashboard", { replace: true });
+    },
+    onError: (err) => toast.error(getErrorMessage(err)),
   });
 
+  function validate(): boolean {
+    const next: Errors = {};
+    if (!name.trim()) next.name = "Name is required";
+    if (!email.trim()) next.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) next.email = "Enter a valid email address";
+    if (!password) next.password = "Password is required";
+    else if (password.length < 8) next.password = "Use at least 8 characters";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
+
+  function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
+    mutation.mutate();
+  }
+
   return (
-    <div className="surface-grid flex min-h-screen items-center justify-center px-4 py-12">
+    <div className="surface-grid flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md animate-fade-in">
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-white">Create account</h1>
-          <p className="mt-2 text-sm text-slate-400">Admins shape initiatives and assignments; members advance their own queue.</p>
+        <div className="mb-8 flex flex-col items-center text-center">
+          <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-glow">
+            <ClipboardCheck className="h-7 w-7" />
+          </span>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Create your account</h1>
+          <p className="mt-1 text-sm text-slate-600">Start collaborating with your team.</p>
         </div>
-        <Card>
-          <form
-            className="space-y-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              mutation.mutate();
-            }}
-          >
-            <div>
-              <label htmlFor="name" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                Full name
-              </label>
+
+        <form
+          onSubmit={onSubmit}
+          noValidate
+          className="space-y-5 rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200"
+        >
+          <div>
+            <label htmlFor="name" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
+              Name
+            </label>
+            <div className="relative">
+              <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 id="name"
-                className="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-3 py-2.5 text-sm text-white focus-ring"
+                type="text"
+                autoComplete="name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (errors.name) setErrors((p) => ({ ...p, name: undefined }));
+                }}
+                placeholder="Jane Doe"
+                className={`w-full rounded-lg border ${
+                  errors.name ? "border-rose-400" : "border-slate-300"
+                } bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition hover:border-slate-400 focus-ring`}
               />
             </div>
-            <div>
-              <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                Email
-              </label>
+            {errors.name && <p className="mt-1.5 text-xs text-rose-600">! {errors.name}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
+              Email
+            </label>
+            <div className="relative">
+              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 id="email"
                 type="email"
-                className="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-3 py-2.5 text-sm text-white focus-ring"
+                autoComplete="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
+                }}
+                placeholder="you@example.com"
+                className={`w-full rounded-lg border ${
+                  errors.email ? "border-rose-400" : "border-slate-300"
+                } bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition hover:border-slate-400 focus-ring`}
               />
             </div>
-            <div>
-              <label htmlFor="password" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                Password (min 6)
-              </label>
+            {errors.email && <p className="mt-1.5 text-xs text-rose-600">! {errors.email}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="password" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
+              Password
+            </label>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 id="password"
-                type="password"
-                minLength={6}
-                className="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-3 py-2.5 text-sm text-white focus-ring"
+                type={showPw ? "text" : "password"}
+                autoComplete="new-password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) setErrors((p) => ({ ...p, password: undefined }));
+                }}
+                placeholder="At least 8 characters"
+                className={`w-full rounded-lg border ${
+                  errors.password ? "border-rose-400" : "border-slate-300"
+                } bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder:text-slate-400 transition hover:border-slate-400 focus-ring`}
               />
-            </div>
-            <div>
-              <label htmlFor="role" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                Role
-              </label>
-              <select
-                id="role"
-                className="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-3 py-2.5 text-sm text-white focus-ring"
-                value={role}
-                onChange={(e) => setRole(e.target.value as UserRole)}
+              <button
+                type="button"
+                onClick={() => setShowPw((s) => !s)}
+                aria-label={showPw ? "Hide password" : "Show password"}
+                className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-ring"
               >
-                <option value="Member">Member</option>
-                <option value="Admin">Admin</option>
-              </select>
+                {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
-            <Button type="submit" className="w-full" disabled={mutation.isPending}>
-              <UserPlus className="h-4 w-4" />
-              {mutation.isPending ? "Creating…" : "Sign up"}
-            </Button>
-          </form>
-          <p className="mt-6 text-center text-sm text-slate-400">
-            Already registered?{" "}
-            <Link to="/login" className="font-medium text-brand-400 hover:text-brand-300">
-              Sign in
-            </Link>
-          </p>
-        </Card>
+            {errors.password && <p className="mt-1.5 text-xs text-rose-600">! {errors.password}</p>}
+
+            <div className="mt-2.5">
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((seg) => (
+                  <span
+                    key={seg}
+                    className={`h-1.5 flex-1 rounded-full transition ${
+                      pwStrength.score >= seg ? STRENGTH_COLORS[pwStrength.score]! : "bg-slate-200"
+                    }`}
+                  />
+                ))}
+              </div>
+              <p className="mt-1.5 flex justify-between text-[11px] text-slate-500">
+                <span>Strength</span>
+                <span className="font-medium text-slate-700">{pwStrength.label || "—"}</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-600">
+            You'll join as a <span className="font-semibold text-brand-700">Member</span>. The very first user becomes the
+            Admin automatically.
+          </div>
+
+          <Button type="submit" className="w-full" disabled={mutation.isPending}>
+            {mutation.isPending ? "Creating account..." : "Create account"}
+          </Button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-slate-600">
+          Already have an account?{" "}
+          <Link to="/login" className="font-semibold text-brand-600 hover:text-brand-700">
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   );

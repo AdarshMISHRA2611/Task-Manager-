@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import enum
 from datetime import datetime
 
@@ -9,6 +11,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    func,
 )
 from sqlalchemy.orm import relationship
 
@@ -21,9 +24,9 @@ class UserRole(str, enum.Enum):
 
 
 class TaskStatus(str, enum.Enum):
-    Queued = "Queued"
-    Active = "Active"
-    Done = "Done"
+    Todo = "Todo"
+    InProgress = "In Progress"
+    Completed = "Completed"
 
 
 class User(Base):
@@ -34,11 +37,11 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False, index=True)
     password = Column(String(255), nullable=False)
     role = Column(String(32), nullable=False, default=UserRole.Member.value)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    project_memberships = relationship("ProjectMember", back_populates="user")
-    created_projects = relationship("Project", back_populates="creator")
-    assigned_tasks = relationship("Task", back_populates="assignee", foreign_keys="Task.assigned_to")
+    projects_created = relationship("Project", back_populates="creator", cascade="all, delete-orphan")
+    memberships = relationship("ProjectMember", back_populates="user", cascade="all, delete-orphan")
+    tasks = relationship("Task", back_populates="assignee")
 
 
 class Project(Base):
@@ -48,24 +51,23 @@ class Project(Base):
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    creator = relationship("User", back_populates="created_projects")
+    creator = relationship("User", back_populates="projects_created")
     members = relationship("ProjectMember", back_populates="project", cascade="all, delete-orphan")
     tasks = relationship("Task", back_populates="project", cascade="all, delete-orphan")
 
 
 class ProjectMember(Base):
     __tablename__ = "project_members"
+    __table_args__ = (UniqueConstraint("project_id", "user_id", name="uq_project_member"),)
 
     id = Column(Integer, primary_key=True, index=True)
     project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     project = relationship("Project", back_populates="members")
-    user = relationship("User", back_populates="project_memberships")
-
-    __table_args__ = (UniqueConstraint("project_id", "user_id", name="uq_project_user"),)
+    user = relationship("User", back_populates="memberships")
 
 
 class Task(Base):
@@ -74,11 +76,11 @@ class Task(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    status = Column(String(32), nullable=False, default=TaskStatus.Queued.value)
+    status = Column(String(32), nullable=False, default=TaskStatus.Todo.value)
     assigned_to = Column(Integer, ForeignKey("users.id"), nullable=True)
     project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
-    due_date = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    due_date = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    assignee = relationship("User", back_populates="assigned_tasks", foreign_keys=[assigned_to])
+    assignee = relationship("User", back_populates="tasks")
     project = relationship("Project", back_populates="tasks")

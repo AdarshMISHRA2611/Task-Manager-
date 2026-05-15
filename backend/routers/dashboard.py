@@ -1,48 +1,47 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from backend.database.database import get_db
-from backend.models.models import Task, TaskStatus, UserRole
+from backend.models.models import Task, TaskStatus
 from backend.schemas.schemas import DashboardOut
 from backend.utils.deps import CurrentUser
 
-router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
 
-def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
-
-
-def _due_is_overdue(due: datetime | None, now: datetime, status: str) -> bool:
-    if due is None or status == TaskStatus.Done.value:
+def _due_is_overdue(task: Task, now: datetime) -> bool:
+    if task.status == TaskStatus.Completed.value:
         return False
+    if not task.due_date:
+        return False
+    due = task.due_date
     if due.tzinfo is None:
-        due_aware = due.replace(tzinfo=timezone.utc)
-    else:
-        due_aware = due.astimezone(timezone.utc)
-    return due_aware < now
+        due = due.replace(tzinfo=timezone.utc)
+    return due < now
 
 
 @router.get("", response_model=DashboardOut)
-def dashboard(user: CurrentUser, db: Session = Depends(get_db)):
-    now = _utc_now()
-    if UserRole(user.role) == UserRole.Admin:
-        tasks = db.query(Task).all()
-    else:
-        tasks = db.query(Task).filter(Task.assigned_to == user.id).all()
+def dashboard(current: CurrentUser, db: Session = Depends(get_db)) -> DashboardOut:
+    query = db.query(Task)
+    if current.role != "Admin":
+        query = query.filter(Task.assigned_to == current.id)
+    tasks = query.all()
 
+    now = datetime.now(timezone.utc)
     total = len(tasks)
-    queued = sum(1 for t in tasks if t.status == TaskStatus.Queued.value)
-    active = sum(1 for t in tasks if t.status == TaskStatus.Active.value)
-    done = sum(1 for t in tasks if t.status == TaskStatus.Done.value)
-    overdue = sum(1 for t in tasks if _due_is_overdue(t.due_date, now, t.status))
+    todo = sum(1 for t in tasks if t.status == TaskStatus.Todo.value)
+    in_progress = sum(1 for t in tasks if t.status == TaskStatus.InProgress.value)
+    completed = sum(1 for t in tasks if t.status == TaskStatus.Completed.value)
+    overdue = sum(1 for t in tasks if _due_is_overdue(t, now))
 
     return DashboardOut(
         total_tasks=total,
-        queued_tasks=queued,
-        active_tasks=active,
-        done_tasks=done,
+        todo_tasks=todo,
+        in_progress_tasks=in_progress,
+        completed_tasks=completed,
         overdue_tasks=overdue,
     )

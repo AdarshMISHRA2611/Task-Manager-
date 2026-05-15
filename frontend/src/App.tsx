@@ -2,13 +2,16 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { ConfirmProvider } from "@/components/ui/ConfirmDialog";
 import { AuthProvider, useAuth } from "@/services/authContext";
 import DashboardPage from "@/pages/Dashboard";
 import LoginPage from "@/pages/Login";
+import ProfilePage from "@/pages/Profile";
 import ProjectDetailPage from "@/pages/ProjectDetail";
 import ProjectsPage from "@/pages/Projects";
 import SignupPage from "@/pages/Signup";
 import TasksPage from "@/pages/Tasks";
+import TeamPage from "@/pages/Team";
 
 function HomeRedirect() {
   const { token } = useAuth();
@@ -26,6 +29,8 @@ function AppRoutes() {
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
           <Route path="/tasks" element={<TasksPage />} />
+          <Route path="/team" element={<TeamPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
       </Route>
       <Route path="/" element={<HomeRedirect />} />
@@ -37,9 +42,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+      <ConfirmProvider>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </ConfirmProvider>
     </ErrorBoundary>
   );
 }

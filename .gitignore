@@ -31,3 +31,5 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+backend/package-lock.json

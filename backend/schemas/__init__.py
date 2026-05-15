@@ -2,7 +2,7 @@ from backend.schemas.schemas import (
     DashboardOut,
     MemberAdd,
     ProjectCreate,
-    ProjectMemberOut,
+    ProjectMemberDetailOut,
     ProjectOut,
     ProjectUpdate,
     TaskCreate,
@@ -11,7 +11,9 @@ from backend.schemas.schemas import (
     TaskUpdate,
     Token,
     UserLogin,
+    UserMeUpdate,
     UserOut,
+    UserRoleUpdate,
     UserSignup,
 )
 
@@ -19,7 +21,7 @@ __all__ = [
     "DashboardOut",
     "MemberAdd",
     "ProjectCreate",
-    "ProjectMemberOut",
+    "ProjectMemberDetailOut",
     "ProjectOut",
     "ProjectUpdate",
     "TaskCreate",
@@ -28,6 +30,8 @@ __all__ = [
     "TaskUpdate",
     "Token",
     "UserLogin",
+    "UserMeUpdate",
     "UserOut",
+    "UserRoleUpdate",
     "UserSignup",
 ]

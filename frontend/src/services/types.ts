@@ -1,9 +1,8 @@
 export type UserRole = "Admin" | "Member";
 
-export type TaskStatus = "Queued" | "Active" | "Done";
+export type TaskStatus = "Todo" | "In Progress" | "Completed";
 
-/** Canonical ordering for selects and status pickers */
-export const TASK_STATUS_OPTIONS: TaskStatus[] = ["Queued", "Active", "Done"];
+export const TASK_STATUS_OPTIONS: TaskStatus[] = ["Todo", "In Progress", "Completed"];
 
 export interface User {
   id: number;
@@ -23,7 +22,6 @@ export interface Project {
 
 export interface ProjectMemberDetail {
   membership_id: number;
-  project_id: number;
   user_id: number;
   name: string;
   email: string;
@@ -43,8 +41,8 @@ export interface Task {
 
 export interface Dashboard {
   total_tasks: number;
-  queued_tasks: number;
-  active_tasks: number;
-  done_tasks: number;
+  todo_tasks: number;
+  in_progress_tasks: number;
+  completed_tasks: number;
   overdue_tasks: number;
 }

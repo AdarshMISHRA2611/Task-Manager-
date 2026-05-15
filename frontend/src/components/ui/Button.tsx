@@ -3,12 +3,13 @@ import clsx from "clsx";
 
 const variants = {
   primary:
-    "bg-brand-600 text-white shadow-glow hover:bg-brand-500 ring-1 ring-white/10 disabled:opacity-50",
+    "bg-brand-600 text-white shadow-sm hover:bg-brand-700 active:bg-brand-800 disabled:opacity-50",
   secondary:
-    "bg-slate-800 text-slate-100 ring-1 ring-slate-700 hover:bg-slate-700 hover:ring-slate-600 disabled:opacity-50",
-  ghost: "text-slate-300 hover:bg-slate-800/80 ring-1 ring-transparent hover:ring-slate-700",
+    "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50",
+  ghost:
+    "text-slate-600 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-50",
   danger:
-    "bg-rose-500/10 text-rose-200 ring-1 ring-rose-500/30 hover:bg-rose-500/20 disabled:opacity-50",
+    "bg-rose-600 text-white shadow-sm hover:bg-rose-700 active:bg-rose-800 disabled:opacity-50",
 } as const;
 
 export function Button({
@@ -28,12 +29,16 @@ export function Button({
     lg: "px-5 py-2.5 text-sm",
   };
   return (
-    <button type={type} className={clsx(
-        "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition focus-ring disabled:cursor-not-allowed",
+    <button
+      type={type}
+      className={clsx(
+        "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition focus-ring disabled:cursor-not-allowed",
         variants[variant],
         sizes[size],
-        className
-      )} {...props}>
+        className,
+      )}
+      {...props}
+    >
       {children}
     </button>
   );

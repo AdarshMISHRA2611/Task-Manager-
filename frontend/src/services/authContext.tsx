@@ -12,7 +12,7 @@ interface AuthState {
 interface AuthContextValue extends AuthState {
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string, role: User["role"]) => Promise<User>;
+  signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshMe: () => Promise<void>;
 }
@@ -62,26 +62,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     void refreshMe();
   }, [refreshMe]);
 
-  const login = async (email: string, password: string) => {
-    setError(null);
-    const { data } = await api.post<{ access_token: string }>("/api/auth/login", { email, password });
-    localStorage.setItem("token", data.access_token);
-    setLoading(true);
-    await refreshMe();
-  };
+  const login = useCallback(
+    async (email: string, password: string) => {
+      setError(null);
+      const { data } = await api.post<{ access_token: string }>("/api/auth/login", { email, password });
+      localStorage.setItem("token", data.access_token);
+      setLoading(true);
+      await refreshMe();
+    },
+    [refreshMe]
+  );
 
-  const signup = async (name: string, email: string, password: string, role: User["role"]) => {
-    setError(null);
-    const { data } = await api.post<User>("/api/auth/signup", { name, email, password, role });
-    return data;
-  };
+  const signup = useCallback(
+    async (name: string, email: string, password: string) => {
+      setError(null);
+      await api.post<User>("/api/auth/signup", { name, email, password });
+      const { data } = await api.post<{ access_token: string }>("/api/auth/login", { email, password });
+      localStorage.setItem("token", data.access_token);
+      setLoading(true);
+      await refreshMe();
+    },
+    [refreshMe]
+  );
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
     queryClient.clear();
-  };
+  }, []);
 
   const value = useMemo(
     () => ({

@@ -1,58 +1,49 @@
+from __future__ import annotations
+
 from typing import List
 
-from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+def normalize_database_url(url: str) -> str:
+    if not url:
+        return url
+    if url.startswith("postgres://"):
+        return "postgresql+psycopg://" + url[len("postgres://"):]
+    if url.startswith("postgresql://") and "+psycopg" not in url and "+asyncpg" not in url:
+        return "postgresql+psycopg://" + url[len("postgresql://"):]
+    return url
 
-    DATABASE_URL: str = "sqlite:///./ethara_local.db"
+
+class Settings(BaseSettings):
+    DATABASE_URL: str = "sqlite:///./team_task_manager.db"
     SECRET_KEY: str = "change-me-in-production-use-long-random-string"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
-
-    # development | production
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     ENVIRONMENT: str = "development"
-
-    # Comma-separated origins for browser clients (e.g. Vite dev server). Empty uses safe dev defaults.
     CORS_ORIGINS: str = ""
+
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=False, extra="ignore")
 
     @property
     def is_production(self) -> bool:
-        return self.ENVIRONMENT.strip().lower() == "production"
+        return self.ENVIRONMENT.lower() == "production"
 
     def cors_origin_list(self) -> List[str]:
-        raw = [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
-        if "*" in raw:
+        raw = (self.CORS_ORIGINS or "").strip()
+        if not raw:
+            if self.is_production:
+                return []
+            return [
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+            ]
+        if raw == "*":
             return ["*"]
-        if raw:
-            return raw
-        if self.is_production:
-            return []
-        return [
-            "http://127.0.0.1:5173",
-            "http://localhost:5173",
-            "http://127.0.0.1:3000",
-            "http://localhost:3000",
-        ]
-
-    @field_validator("DATABASE_URL")
-    @classmethod
-    def normalize_database_url(cls, v: str) -> str:
-        url = str(v).strip()
-        if url.startswith("postgres://"):
-            return "postgresql+psycopg://" + url[len("postgres://") :]
-        if url.startswith("postgresql://") and "+psycopg" not in url.split("://", 1)[0]:
-            return "postgresql+psycopg://" + url[len("postgresql://") :]
-        return url
-
-    @field_validator("SECRET_KEY")
-    @classmethod
-    def secret_not_empty(cls, v: str) -> str:
-        if not v or not str(v).strip():
-            raise ValueError("SECRET_KEY must be set")
-        return str(v).strip()
+        return [o.strip() for o in raw.split(",") if o.strip()]
 
 
 settings = Settings()
+settings.DATABASE_URL = normalize_database_url(settings.DATABASE_URL)

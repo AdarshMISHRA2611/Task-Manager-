@@ -1,24 +1,22 @@
+from __future__ import annotations
+
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from backend.database.database import get_db
 from backend.models.models import Project, ProjectMember, User, UserRole
-from backend.schemas.schemas import MemberAdd, ProjectCreate, ProjectMemberDetailOut, ProjectOut, ProjectUpdate
+from backend.schemas.schemas import (
+    MemberAdd,
+    ProjectCreate,
+    ProjectMemberDetailOut,
+    ProjectOut,
+    ProjectUpdate,
+)
 from backend.utils.deps import AdminUser, CurrentUser
 
-router = APIRouter(prefix="/projects", tags=["projects"])
-
-
-def _project_out(p: Project) -> ProjectOut:
-    return ProjectOut(
-        id=p.id,
-        name=p.name,
-        description=p.description,
-        created_by=p.created_by,
-        created_at=p.created_at,
-    )
+router = APIRouter(prefix="/api/projects", tags=["projects"])
 
 
 def _member_project_ids(db: Session, user_id: int) -> List[int]:
@@ -27,62 +25,96 @@ def _member_project_ids(db: Session, user_id: int) -> List[int]:
 
 
 def _get_project_or_404(db: Session, project_id: int) -> Project:
-    project = db.query(Project).filter(Project.id == project_id).first()
-    if project is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
-    return project
+    p = db.get(Project, project_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return p
 
 
-def _ensure_project_access(db: Session, user: User, project: Project) -> None:
-    if UserRole(user.role) == UserRole.Admin:
+def _ensure_access(db: Session, project: Project, user: User) -> None:
+    if user.role == UserRole.Admin.value:
         return
-    member = (
+    is_member = (
         db.query(ProjectMember)
         .filter(ProjectMember.project_id == project.id, ProjectMember.user_id == user.id)
         .first()
     )
-    if member is None:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not a member of this project")
+    if not is_member:
+        raise HTTPException(status_code=403, detail="You do not have access to this project")
 
 
-@router.get("", response_model=list[ProjectOut])
-def list_projects(user: CurrentUser, db: Session = Depends(get_db)):
-    if UserRole(user.role) == UserRole.Admin:
+@router.get("", response_model=List[ProjectOut])
+def list_projects(current: CurrentUser, db: Session = Depends(get_db)) -> List[ProjectOut]:
+    if current.role == UserRole.Admin.value:
         projects = db.query(Project).order_by(Project.created_at.desc()).all()
     else:
-        ids = _member_project_ids(db, user.id)
-        if not ids:
-            return []
-        projects = db.query(Project).filter(Project.id.in_(ids)).order_by(Project.created_at.desc()).all()
-    return [_project_out(p) for p in projects]
+        pids = _member_project_ids(db, current.id)
+        projects = (
+            db.query(Project)
+            .filter(Project.id.in_(pids))
+            .order_by(Project.created_at.desc())
+            .all()
+            if pids
+            else []
+        )
+    return [ProjectOut.model_validate(p) for p in projects]
 
 
-@router.post("", response_model=ProjectOut, status_code=status.HTTP_201_CREATED)
-def create_project(
-    user: AdminUser,
-    payload: ProjectCreate,
-    db: Session = Depends(get_db),
-):
-    project = Project(name=payload.name, description=payload.description, created_by=user.id)
+@router.post("", response_model=ProjectOut, status_code=201)
+def create_project(payload: ProjectCreate, admin: AdminUser, db: Session = Depends(get_db)) -> ProjectOut:
+    project = Project(
+        name=payload.name.strip(),
+        description=(payload.description or None),
+        created_by=admin.id,
+    )
     db.add(project)
-    db.flush()
-    db.add(ProjectMember(project_id=project.id, user_id=user.id))
     db.commit()
     db.refresh(project)
-    return _project_out(project)
+
+    db.add(ProjectMember(project_id=project.id, user_id=admin.id))
+    db.commit()
+    return ProjectOut.model_validate(project)
 
 
 @router.get("/{project_id}", response_model=ProjectOut)
-def get_project(project_id: int, user: CurrentUser, db: Session = Depends(get_db)):
+def get_project(project_id: int, current: CurrentUser, db: Session = Depends(get_db)) -> ProjectOut:
     project = _get_project_or_404(db, project_id)
-    _ensure_project_access(db, user, project)
-    return _project_out(project)
+    _ensure_access(db, project, current)
+    return ProjectOut.model_validate(project)
 
 
-@router.get("/{project_id}/members", response_model=list[ProjectMemberDetailOut])
-def list_project_members(project_id: int, user: CurrentUser, db: Session = Depends(get_db)):
+@router.put("/{project_id}", response_model=ProjectOut)
+def update_project(
+    project_id: int,
+    payload: ProjectUpdate,
+    _: AdminUser,
+    db: Session = Depends(get_db),
+) -> ProjectOut:
     project = _get_project_or_404(db, project_id)
-    _ensure_project_access(db, user, project)
+    if payload.name is not None:
+        project.name = payload.name.strip()
+    if payload.description is not None:
+        project.description = payload.description or None
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+    return ProjectOut.model_validate(project)
+
+
+@router.delete("/{project_id}", status_code=204)
+def delete_project(project_id: int, _: AdminUser, db: Session = Depends(get_db)) -> None:
+    project = _get_project_or_404(db, project_id)
+    db.delete(project)
+    db.commit()
+    return None
+
+
+@router.get("/{project_id}/members", response_model=List[ProjectMemberDetailOut])
+def list_members(
+    project_id: int, current: CurrentUser, db: Session = Depends(get_db)
+) -> List[ProjectMemberDetailOut]:
+    project = _get_project_or_404(db, project_id)
+    _ensure_access(db, project, current)
     rows = (
         db.query(ProjectMember, User)
         .join(User, User.id == ProjectMember.user_id)
@@ -92,80 +124,61 @@ def list_project_members(project_id: int, user: CurrentUser, db: Session = Depen
     )
     return [
         ProjectMemberDetailOut(
-            membership_id=pm.id,
-            project_id=pm.project_id,
+            membership_id=m.id,
             user_id=u.id,
             name=u.name,
             email=u.email,
-            role=UserRole(u.role),
+            role=u.role,
         )
-        for pm, u in rows
+        for m, u in rows
     ]
 
 
-@router.put("/{project_id}", response_model=ProjectOut)
-def update_project(
-    project_id: int,
-    user: AdminUser,
-    payload: ProjectUpdate,
-    db: Session = Depends(get_db),
-):
-    project = _get_project_or_404(db, project_id)
-    if payload.name is not None:
-        project.name = payload.name.strip()
-    if payload.description is not None:
-        project.description = payload.description
-    db.commit()
-    db.refresh(project)
-    return _project_out(project)
-
-
-@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_project(project_id: int, user: AdminUser, db: Session = Depends(get_db)):
-    project = _get_project_or_404(db, project_id)
-    db.delete(project)
-    db.commit()
-    return None
-
-
-@router.post("/{project_id}/members", status_code=status.HTTP_201_CREATED)
+@router.post("/{project_id}/members", response_model=ProjectMemberDetailOut, status_code=201)
 def add_member(
     project_id: int,
-    user: AdminUser,
     payload: MemberAdd,
+    _: AdminUser,
     db: Session = Depends(get_db),
-):
+) -> ProjectMemberDetailOut:
     project = _get_project_or_404(db, project_id)
-    target = db.query(User).filter(User.id == payload.user_id).first()
-    if target is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    user = db.get(User, payload.user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
     exists = (
         db.query(ProjectMember)
-        .filter(ProjectMember.project_id == project_id, ProjectMember.user_id == payload.user_id)
+        .filter(ProjectMember.project_id == project.id, ProjectMember.user_id == user.id)
         .first()
     )
     if exists:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already in project")
-    db.add(ProjectMember(project_id=project_id, user_id=payload.user_id))
+        raise HTTPException(status_code=400, detail="User is already a member")
+    member = ProjectMember(project_id=project.id, user_id=user.id)
+    db.add(member)
     db.commit()
-    return {"ok": True}
+    db.refresh(member)
+    return ProjectMemberDetailOut(
+        membership_id=member.id,
+        user_id=user.id,
+        name=user.name,
+        email=user.email,
+        role=user.role,
+    )
 
 
-@router.delete("/{project_id}/members/{member_user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{project_id}/members/{user_id}", status_code=204)
 def remove_member(
     project_id: int,
-    member_user_id: int,
-    user: AdminUser,
+    user_id: int,
+    _: AdminUser,
     db: Session = Depends(get_db),
-):
-    _get_project_or_404(db, project_id)
-    row = (
+) -> None:
+    member = (
         db.query(ProjectMember)
-        .filter(ProjectMember.project_id == project_id, ProjectMember.user_id == member_user_id)
+        .filter(ProjectMember.project_id == project_id, ProjectMember.user_id == user_id)
         .first()
     )
-    if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Membership not found")
-    db.delete(row)
+    if not member:
+        raise HTTPException(status_code=404, detail="Member not found")
+    db.delete(member)
     db.commit()
     return None
