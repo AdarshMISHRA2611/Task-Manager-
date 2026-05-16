@@ -16,7 +16,7 @@ export default function ProtectedRoute() {
   }
 
   if (!token) {
-    return <Navigate to="/login" replace state={{ from: loc.pathname }} />;
+    return <Navigate to="/login" replace state={{ from: loc }} />;
   }
 
   return <Outlet />;

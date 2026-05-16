@@ -197,6 +197,7 @@ export default function ProjectDetailPage() {
       toast.success("Role updated");
       queryClient.invalidateQueries({ queryKey: qk.projectMembers(projectId) });
       queryClient.invalidateQueries({ queryKey: qk.users });
+      queryClient.invalidateQueries({ queryKey: qk.me });
     },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
