@@ -12,7 +12,7 @@
 
 Production-grade team task manager with role-based access. **FastAPI + SQLAlchemy + JWT** API, **React 18 + TypeScript + Vite + Tailwind + TanStack Query** UI, **multi-stage Docker** image deployed to **Railway** behind a single URL.
 
-> **Live demo:** _replace with your Railway URL_ — `https://<your-app>.up.railway.app`
+> **Live demo:** <https://task-manager-production-c446.up.railway.app>
 
 ---
 
