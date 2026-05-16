@@ -18,13 +18,15 @@ Production-grade team task manager with role-based access. **FastAPI + SQLAlchem
 
 ## Highlights
 
-- **Strict role policy** — Admin role is restricted to `@ethara.ai` email addresses. Enforced server-side on signup AND on role promotion. No backdoors, no first-user bypass.
-- **⌘K command palette** — global Cmd+K / Ctrl+K opens a fuzzy-searchable palette that jumps to any project, task, or person, plus runs actions (theme toggle, sign out, navigation). Sourced from React Query cache — instant.
+- **Strict role policy** — Admin role is restricted to `@ethara.ai` email addresses. Enforced server-side on signup, login, AND on role promotion. No backdoors, no first-user bypass.
+- **⌘K command palette** — global Cmd+K / Ctrl+K opens a fuzzy-searchable palette that jumps to any project, task, or person, plus runs actions (theme toggle, sign out, navigation). Sourced from React Query cache — instant. Suppressed when another modal is open so overlays never stack.
 - **Dark mode that actually works** — semantic CSS-variable tokens with light `:root` and `.dark` themes, system-preference detection, manual override via Sun/Moon toggle, FOUC-prevention script that applies the theme before React paints.
 - **Kanban with drag-and-drop** — `/tasks` toggles between List and Board views. Cards are draggable only when the current user can change the task's status (admin or assignee). Drops fire the same `PUT /api/tasks/{id}` mutation as the inline status select.
-- **Task discussions** — every task has a comment thread inside its edit modal. Soft-deleted via `deleted_at` (preserves attribution), Enter-to-send with Shift+Enter for newline, useConfirm flow on delete, indexed `(task_id, created_at)` for fast loads.
-- **Custom UI primitives, no native browser controls** — Modal (portal + focus trap + scroll lock), ConfirmDialog (replaces `window.confirm`), Select (keyboard nav, searchable, no native `<select>`), DateTimePicker (no native `datetime-local`), StatusBadge, Skeleton, EmptyState.
+- **Task discussions** — every task has a comment thread inside its edit modal. Soft-deleted via `deleted_at` (preserves attribution), Enter-to-send with Shift+Enter for newline, useConfirm flow on delete, indexed `(task_id, created_at)` for fast loads, refetched on every modal open to stay fresh.
+- **Custom UI primitives, no native browser controls** — Modal (portal + focus trap + scroll lock), ConfirmDialog (replaces `window.confirm`), Select (portal-rendered with auto-flip, keyboard nav, searchable, no native `<select>`), DateTimePicker (portal, auto-flip, no native `datetime-local`), StatusBadge, Skeleton, EmptyState, PageHeader, Avatar.
+- **Design polish baked in** — animated aurora background on the auth pages, deterministic per-user Avatar colors (djb2 hash → hue, dark-mode aware), staggered fade-in on list rows, brand-glow dot on the active sidebar link, compact 5-across stat grid with share-of-total progress bars.
 - **No `required` HTML attribute anywhere** — every form runs custom inline validation with themed error states that clear as the user types.
+- **Resilient queries** — Tasks, Projects, and Team render a retryable error state when their primary query fails, instead of silently rendering empty data.
 
 ---
 
@@ -58,8 +60,10 @@ Production-grade team task manager with role-based access. **FastAPI + SQLAlchem
 - Relative timestamps (`just now`, `5m ago`, `3h ago`, …).
 
 ### Dashboard
-- Five stat cards: Total / Todo / In Progress / Completed / Overdue. Scoped by role (admin sees all, member sees own).
-- Hover lift + tinted icon glow per category.
+- Time-of-day greeting + first name + role pill at the top.
+- Compact responsive 5-card grid (Total / Todo / In Progress / Completed / Overdue) — `grid-cols-2 sm:grid-cols-3 lg:grid-cols-5`. Each card shows the value, a tone-tinted icon, and a slim share-of-total progress bar.
+- Scoped by role (admin sees all, member sees own assigned).
+- Hover lift + group-scoped colored drop-shadow per category.
 
 ### Team directory
 - Admin only. Search by name/email + role filter.
@@ -82,6 +86,7 @@ Production-grade team task manager with role-based access. **FastAPI + SQLAlchem
 - Brand: blue (#2563eb light / #3b82f6 dark). Accent: teal.
 - Sun/Moon toggle in the navbar; system preference auto-detected; persisted to localStorage.
 - FOUC-prevention script in `index.html` applies the theme class to `<html>` before React mounts.
+- Authenticated app sits on a calm `bg-background`; Login + Signup get the animated `.surface-aurora` utility (two blurred brand+accent blobs drifting via CSS keyframes, honors `prefers-reduced-motion`).
 
 ---
 
@@ -130,7 +135,8 @@ frontend/src/
   components/        # AppLayout, Navbar, Sidebar, CommandPalette,
                      # TaskComments, ProtectedRoute, ErrorBoundary
   components/ui/     # Button, Card, Modal, ConfirmDialog, Select,
-                     # DateTimePicker, StatusBadge, Skeleton, EmptyState, hooks
+                     # DateTimePicker, StatusBadge, Skeleton, EmptyState,
+                     # PageHeader, Avatar, hooks
   pages/             # Login, Signup, Dashboard, Projects, ProjectDetail,
                      # Tasks, Team, Profile
   services/          # api, authContext, themeContext, queryClient, types
@@ -222,7 +228,10 @@ The live URL never changes for subsequent pushes — every push to `main` trigge
 
 - **No `required` HTML attribute anywhere.** Forms run custom JS validation with themed inline errors (`border-destructive` + `! message text-destructive`) that clear as the user types.
 - **No `window.confirm` / `window.alert`.** Replaced by `useConfirm()` returning `Promise<boolean>` with `tone: 'danger' | 'primary'`.
-- **No native `<select>` or `<input type="datetime-local">`.** Both are replaced with portal-rendered custom components that auto-flip and never get clipped by parent `overflow: hidden`.
+- **No native `<select>` or `<input type="datetime-local">`.** Both render their dropdown/popover via `createPortal` with fixed positioning and auto-flip, so they're never clipped by parent `overflow: hidden` (e.g. when used inside a Modal body).
 - **No type-error suppression.** No `as any`, no `@ts-ignore`. `tsc --noEmit` is clean on every commit.
 - **No `bg-slate-9XX` literals except `bg-slate-900/40`** — and only for the modal / sidebar / palette backdrop, which works in both themes.
 - **Soft-delete on comments** (`deleted_at`) preserves attribution and audit trail.
+- **`isError` is not swallowed.** Page-level queries render a retryable error UI; query-derived cards never silently show empty data when the network is broken.
+- **Auth deep-links round-trip.** `ProtectedRoute` preserves the full `Location` object, so a logged-out user opening `/projects/42` lands back on `/projects/42` after signing in.
+- **Comment access enforced both ways.** `_ensure_task_access` is called on every comment endpoint (list, create, delete) so losing project access immediately revokes comment manipulation even with a known comment ID.
