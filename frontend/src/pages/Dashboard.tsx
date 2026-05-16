@@ -208,9 +208,8 @@ export default function DashboardPage() {
             {getGreeting()}
           </p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            {firstName(user?.name)}
-            <span className="ml-2 text-muted-foreground">\u00b7</span>{" "}
-            <span className="text-muted-foreground">Welcome back</span>
+            {firstName(user?.name)},{" "}
+            <span className="text-muted-foreground">welcome back</span>
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {isAdmin
