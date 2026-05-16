@@ -385,7 +385,7 @@ export default function ProjectDetailPage() {
   if (!Number.isFinite(projectId)) {
     return (
       <Card>
-        <p className="text-sm text-rose-600">Invalid project id.</p>
+        <p className="text-sm text-destructive">Invalid project id.</p>
       </Card>
     );
   }
@@ -403,7 +403,7 @@ export default function ProjectDetailPage() {
   if (projectQuery.isError || !projectQuery.data) {
     return (
       <Card>
-        <p className="text-sm text-rose-600">
+        <p className="text-sm text-destructive">
           {getErrorMessage(projectQuery.error) || "Could not load project."}
         </p>
         <div className="mt-3">
@@ -430,19 +430,19 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="space-y-6">
-      <nav className="flex items-center gap-1 text-xs text-slate-500">
-        <Link to="/projects" className="hover:text-slate-700">
+      <nav className="flex items-center gap-1 text-xs text-muted-foreground">
+        <Link to="/projects" className="hover:text-foreground">
           Projects
         </Link>
         <ChevronRight className="h-3.5 w-3.5" aria-hidden />
-        <span className="text-slate-900">{project.name}</span>
+        <span className="text-foreground">{project.name}</span>
       </nav>
 
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">{project.name}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">{project.name}</h1>
           {project.description && (
-            <p className="mt-1 max-w-2xl text-sm text-slate-600">{project.description}</p>
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{project.description}</p>
           )}
         </div>
       </header>
@@ -450,17 +450,17 @@ export default function ProjectDetailPage() {
       {isAdmin && (
         <Card>
           <div className="mb-4 flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600 ring-1 ring-brand-200">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-subtle text-brand ring-1 ring-brand-subtle-border">
               <Pencil className="h-4 w-4" aria-hidden />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-slate-900">Project settings</h2>
-              <p className="text-xs text-slate-500">Update name, description or remove this project.</p>
+              <h2 className="text-sm font-semibold text-foreground">Project settings</h2>
+              <p className="text-xs text-muted-foreground">Update name, description or remove this project.</p>
             </div>
           </div>
           <form noValidate onSubmit={onSaveProject} className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Name
               </label>
               <input
@@ -469,22 +469,22 @@ export default function ProjectDetailPage() {
                   setEditName(e.target.value);
                   if (editErrors.name) setEditErrors((p) => ({ ...p, name: undefined }));
                 }}
-                className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-400 focus-ring ${
-                  editErrors.name ? "border-rose-400" : "border-slate-300"
+                className={`mt-1 w-full rounded-lg border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-subtle hover:border-border-strong focus-ring ${
+                  editErrors.name ? "border-destructive" : "border-border-strong"
                 }`}
               />
               {editErrors.name && (
-                <p className="mt-1 text-xs text-rose-600">! {editErrors.name}</p>
+                <p className="mt-1 text-xs text-destructive">! {editErrors.name}</p>
               )}
             </div>
             <div>
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Description
               </label>
               <input
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-400 focus-ring"
+                className="mt-1 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-foreground placeholder:text-subtle hover:border-border-strong focus-ring"
               />
             </div>
             <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-3">
@@ -513,21 +513,21 @@ export default function ProjectDetailPage() {
 
       <Card>
         <div className="mb-4 flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600 ring-1 ring-brand-200">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-subtle text-brand ring-1 ring-brand-subtle-border">
             <Users className="h-4 w-4" aria-hidden />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-slate-900">Team</h2>
-            <p className="text-xs text-slate-500">
+            <h2 className="text-sm font-semibold text-foreground">Team</h2>
+            <p className="text-xs text-muted-foreground">
               {members.length} {members.length === 1 ? "member" : "members"} on this project.
             </p>
           </div>
         </div>
 
         {isAdmin && (
-          <div className="mb-4 flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <div className="mb-4 flex flex-wrap items-end gap-3 rounded-xl border border-border bg-surface-muted p-3">
             <div className="flex-1 min-w-[220px]">
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Add member
               </label>
               <Select
@@ -574,14 +574,14 @@ export default function ProjectDetailPage() {
             description={isAdmin ? "Add the first teammate above." : "An admin will add members soon."}
           />
         ) : (
-          <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
+          <ul className="divide-y divide-border rounded-xl border border-border bg-surface">
             {members.map((m) => (
               <li
                 key={m.membership_id}
                 className="flex flex-wrap items-center justify-between gap-3 px-3 py-2"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-700 ring-1 ring-brand-200">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-subtle text-sm font-semibold text-brand-subtle-foreground ring-1 ring-brand-subtle-border">
                     {m.name
                       .split(" ")
                       .map((s) => s[0])
@@ -591,8 +591,8 @@ export default function ProjectDetailPage() {
                       .toUpperCase() || "?"}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-slate-900">{m.name}</p>
-                    <p className="truncate text-xs text-slate-500">{m.email}</p>
+                    <p className="truncate text-sm font-medium text-foreground">{m.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">{m.email}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -608,7 +608,7 @@ export default function ProjectDetailPage() {
                       disabled={user?.id === m.user_id}
                     />
                   ) : (
-                    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-700 ring-1 ring-slate-200">
+                    <span className="rounded-md bg-surface-muted px-2 py-1 text-xs text-foreground ring-1 ring-border">
                       {m.role}
                     </span>
                   )}
@@ -632,17 +632,17 @@ export default function ProjectDetailPage() {
       {isAdmin && (
         <Card>
           <div className="mb-4 flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600 ring-1 ring-brand-200">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-subtle text-brand ring-1 ring-brand-subtle-border">
               <Plus className="h-4 w-4" aria-hidden />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-slate-900">New task</h2>
-              <p className="text-xs text-slate-500">Assign work to a project member.</p>
+              <h2 className="text-sm font-semibold text-foreground">New task</h2>
+              <p className="text-xs text-muted-foreground">Assign work to a project member.</p>
             </div>
           </div>
           <form noValidate onSubmit={onCreateTask} className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Title
               </label>
               <input
@@ -652,16 +652,16 @@ export default function ProjectDetailPage() {
                   if (taskErrors.title) setTaskErrors((p) => ({ ...p, title: undefined }));
                 }}
                 placeholder="Finalize Q3 roadmap"
-                className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-400 focus-ring ${
-                  taskErrors.title ? "border-rose-400" : "border-slate-300"
+                className={`mt-1 w-full rounded-lg border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-subtle hover:border-border-strong focus-ring ${
+                  taskErrors.title ? "border-destructive" : "border-border-strong"
                 }`}
               />
               {taskErrors.title && (
-                <p className="mt-1 text-xs text-rose-600">! {taskErrors.title}</p>
+                <p className="mt-1 text-xs text-destructive">! {taskErrors.title}</p>
               )}
             </div>
             <div className="sm:col-span-2">
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Description
               </label>
               <textarea
@@ -669,11 +669,11 @@ export default function ProjectDetailPage() {
                 onChange={(e) => setTaskDescription(e.target.value)}
                 placeholder="Short brief (optional)"
                 rows={3}
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-400 focus-ring"
+                className="mt-1 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-foreground placeholder:text-subtle hover:border-border-strong focus-ring"
               />
             </div>
             <div>
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Assignee
               </label>
               <Select<number>
@@ -686,7 +686,7 @@ export default function ProjectDetailPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Status
               </label>
               <Select<TaskStatus>
@@ -696,7 +696,7 @@ export default function ProjectDetailPage() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Due date
               </label>
               <DateTimePicker value={taskDue} onChange={setTaskDue} placeholder="Pick a due date" />
@@ -721,8 +721,8 @@ export default function ProjectDetailPage() {
       <Card padding={false}>
         <div className="flex items-center justify-between px-5 py-4">
           <div>
-            <h2 className="text-sm font-semibold text-slate-900">Tasks</h2>
-            <p className="text-xs text-slate-500">
+            <h2 className="text-sm font-semibold text-foreground">Tasks</h2>
+            <p className="text-xs text-muted-foreground">
               {projectTasks.length} {projectTasks.length === 1 ? "task" : "tasks"} in this project.
             </p>
           </div>
@@ -743,8 +743,8 @@ export default function ProjectDetailPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200 text-sm">
-              <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+            <table className="min-w-full divide-y divide-border text-sm">
+              <thead className="bg-surface-muted text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th scope="col" className="px-5 py-3">
                     Title
@@ -763,32 +763,32 @@ export default function ProjectDetailPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-border">
                 {projectTasks.map((t) => {
                   const assignee = members.find((m) => m.user_id === t.assigned_to);
                   const canChangeStatus =
                     isAdmin || (user?.id !== undefined && t.assigned_to === user.id);
                   return (
-                    <tr key={t.id} className="transition hover:bg-slate-50">
+                    <tr key={t.id} className="transition hover:bg-surface-muted">
                       <td className="px-5 py-3 align-top">
-                        <p className="font-medium text-slate-900">{t.title}</p>
+                        <p className="font-medium text-foreground">{t.title}</p>
                         {t.description && (
-                          <p className="mt-0.5 line-clamp-2 text-xs text-slate-600">
+                          <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
                             {t.description}
                           </p>
                         )}
                       </td>
-                      <td className="px-5 py-3 align-top text-slate-700">
+                      <td className="px-5 py-3 align-top text-foreground">
                         {assignee ? (
                           <span className="inline-flex items-center gap-2">
-                            <UserCircle2 className="h-4 w-4 text-slate-400" aria-hidden />
+                            <UserCircle2 className="h-4 w-4 text-subtle" aria-hidden />
                             {assignee.name}
                           </span>
                         ) : (
-                          <span className="text-slate-400">Unassigned</span>
+                          <span className="text-subtle">Unassigned</span>
                         )}
                       </td>
-                      <td className="px-5 py-3 align-top text-slate-700">
+                      <td className="px-5 py-3 align-top text-foreground">
                         {formatDue(t.due_date)}
                       </td>
                       <td className="px-5 py-3 align-top">
@@ -851,7 +851,7 @@ export default function ProjectDetailPage() {
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Title
             </label>
             <input
@@ -860,27 +860,27 @@ export default function ProjectDetailPage() {
                 setEtTitle(e.target.value);
                 if (etErrors.title) setEtErrors((p) => ({ ...p, title: undefined }));
               }}
-              className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 hover:border-slate-400 focus-ring ${
-                etErrors.title ? "border-rose-400" : "border-slate-300"
+              className={`mt-1 w-full rounded-lg border bg-surface px-3 py-2 text-sm text-foreground hover:border-border-strong focus-ring ${
+                etErrors.title ? "border-destructive" : "border-border-strong"
               }`}
             />
             {etErrors.title && (
-              <p className="mt-1 text-xs text-rose-600">! {etErrors.title}</p>
+              <p className="mt-1 text-xs text-destructive">! {etErrors.title}</p>
             )}
           </div>
           <div className="sm:col-span-2">
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Description
             </label>
             <textarea
               value={etDescription}
               onChange={(e) => setEtDescription(e.target.value)}
               rows={3}
-              className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:border-slate-400 focus-ring"
+              className="mt-1 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-foreground hover:border-border-strong focus-ring"
             />
           </div>
           <div>
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Assignee
             </label>
             <Select<number>
@@ -893,7 +893,7 @@ export default function ProjectDetailPage() {
             />
           </div>
           <div>
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Status
             </label>
             <Select<TaskStatus>
@@ -903,7 +903,7 @@ export default function ProjectDetailPage() {
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Due date
             </label>
             <DateTimePicker value={etDue} onChange={setEtDue} placeholder="Pick a due date" />

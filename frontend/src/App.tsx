@@ -4,6 +4,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ConfirmProvider } from "@/components/ui/ConfirmDialog";
 import { AuthProvider, useAuth } from "@/services/authContext";
+import { ThemeProvider } from "@/services/themeContext";
 import DashboardPage from "@/pages/Dashboard";
 import LoginPage from "@/pages/Login";
 import ProfilePage from "@/pages/Profile";
@@ -42,11 +43,13 @@ function AppRoutes() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <ConfirmProvider>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </ConfirmProvider>
+      <ThemeProvider>
+        <ConfirmProvider>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </ConfirmProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

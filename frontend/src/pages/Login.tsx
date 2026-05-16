@@ -50,26 +50,26 @@ export default function LoginPage() {
     <div className="surface-grid flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md animate-fade-in">
         <div className="mb-8 flex flex-col items-center text-center">
-          <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-glow">
+          <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand text-brand-foreground shadow-glow">
             <ClipboardCheck className="h-7 w-7" />
           </span>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Welcome to <span className="text-gradient">Team Task Manager</span>
           </h1>
-          <p className="mt-1 text-sm text-slate-600">Sign in to manage your projects and tasks.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Sign in to manage your projects and tasks.</p>
         </div>
 
         <form
           onSubmit={onSubmit}
           noValidate
-          className="space-y-5 rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200"
+          className="space-y-5 rounded-2xl bg-surface p-6 shadow-xl ring-1 ring-border"
         >
           <div>
-            <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Email
             </label>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
               <input
                 id="email"
                 type="email"
@@ -81,19 +81,19 @@ export default function LoginPage() {
                 }}
                 placeholder="you@example.com"
                 className={`w-full rounded-lg border ${
-                  errors.email ? "border-rose-400" : "border-slate-300"
-                } bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition hover:border-slate-400 focus-ring`}
+                  errors.email ? "border-destructive" : "border-border-strong"
+                } bg-surface py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-subtle transition hover:border-border-strong focus-ring`}
               />
             </div>
-            {errors.email && <p className="mt-1.5 text-xs text-rose-600">! {errors.email}</p>}
+            {errors.email && <p className="mt-1.5 text-xs text-destructive">! {errors.email}</p>}
           </div>
 
           <div>
-            <label htmlFor="password" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label htmlFor="password" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Password
             </label>
             <div className="relative">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
               <input
                 id="password"
                 type={showPw ? "text" : "password"}
@@ -105,19 +105,19 @@ export default function LoginPage() {
                 }}
                 placeholder="••••••••"
                 className={`w-full rounded-lg border ${
-                  errors.password ? "border-rose-400" : "border-slate-300"
-                } bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder:text-slate-400 transition hover:border-slate-400 focus-ring`}
+                  errors.password ? "border-destructive" : "border-border-strong"
+                } bg-surface py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-subtle transition hover:border-border-strong focus-ring`}
               />
               <button
                 type="button"
                 onClick={() => setShowPw((s) => !s)}
                 aria-label={showPw ? "Hide password" : "Show password"}
-                className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-ring"
+                className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-surface-muted hover:text-foreground focus-ring"
               >
                 {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            {errors.password && <p className="mt-1.5 text-xs text-rose-600">! {errors.password}</p>}
+            {errors.password && <p className="mt-1.5 text-xs text-destructive">! {errors.password}</p>}
           </div>
 
           <Button type="submit" className="w-full" disabled={mutation.isPending}>
@@ -125,9 +125,9 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-600">
+        <p className="mt-6 text-center text-sm text-muted-foreground">
           No account?{" "}
-          <Link to="/signup" className="font-semibold text-brand-600 hover:text-brand-700">
+          <Link to="/signup" className="font-semibold text-brand hover:text-brand-hover">
             Create one
           </Link>
         </p>

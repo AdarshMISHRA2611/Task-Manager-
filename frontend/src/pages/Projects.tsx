@@ -65,8 +65,8 @@ export default function ProjectsPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Projects</h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Projects</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             {isAdmin
               ? "Every project in the workspace."
               : "Projects you have been added to."}
@@ -77,18 +77,18 @@ export default function ProjectsPage() {
       {isAdmin && (
         <Card>
           <div className="mb-4 flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600 ring-1 ring-brand-200">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-subtle text-brand ring-1 ring-brand-subtle-border">
               <Plus className="h-4 w-4" aria-hidden />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-slate-900">New project</h2>
-              <p className="text-xs text-slate-500">Spin up a workspace for your team.</p>
+              <h2 className="text-sm font-semibold text-foreground">New project</h2>
+              <p className="text-xs text-muted-foreground">Spin up a workspace for your team.</p>
             </div>
           </div>
 
           <form noValidate onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Name
               </label>
               <input
@@ -98,23 +98,23 @@ export default function ProjectsPage() {
                   if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
                 }}
                 placeholder="Atlas migration"
-                className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 transition hover:border-slate-400 focus-ring ${
-                  errors.name ? "border-rose-400" : "border-slate-300"
+                className={`mt-1 w-full rounded-lg border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-subtle transition hover:border-border-strong focus-ring ${
+                  errors.name ? "border-destructive" : "border-border-strong"
                 }`}
               />
               {errors.name && (
-                <p className="mt-1 text-xs text-rose-600">! {errors.name}</p>
+                <p className="mt-1 text-xs text-destructive">! {errors.name}</p>
               )}
             </div>
             <div>
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Description
               </label>
               <input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Short summary (optional)"
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 transition hover:border-slate-400 focus-ring"
+                className="mt-1 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-foreground placeholder:text-subtle transition hover:border-border-strong focus-ring"
               />
             </div>
             <div className="sm:col-span-2 flex justify-end">
@@ -158,8 +158,8 @@ export default function ProjectsPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200 text-sm">
-              <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+            <table className="min-w-full divide-y divide-border text-sm">
+              <thead className="bg-surface-muted text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th scope="col" className="px-5 py-3">
                     Name
@@ -172,24 +172,24 @@ export default function ProjectsPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-border">
                 {projects.map((p) => (
-                  <tr key={p.id} className="transition hover:bg-slate-50">
+                  <tr key={p.id} className="transition hover:bg-surface-muted">
                     <td className="px-5 py-3 align-top">
                       <Link
                         to={`/projects/${p.id}`}
-                        className="font-medium text-slate-900 hover:text-brand-700"
+                        className="font-medium text-foreground hover:text-brand-hover"
                       >
                         {p.name}
                       </Link>
                     </td>
-                    <td className="px-5 py-3 align-top text-slate-600">
-                      {p.description || <span className="text-slate-400">—</span>}
+                    <td className="px-5 py-3 align-top text-muted-foreground">
+                      {p.description || <span className="text-subtle">—</span>}
                     </td>
                     <td className="px-5 py-3 text-right align-top">
                       <Link
                         to={`/projects/${p.id}`}
-                        className="inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:text-brand-hover"
                       >
                         Open <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                       </Link>

@@ -397,18 +397,18 @@ export default function TasksPage() {
         draggable={canChange}
         onDragStart={(e) => canChange && handleDragStart(e, t.id)}
         onDragEnd={handleDragEnd}
-        className={`group rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+        className={`group rounded-xl border border-border bg-surface p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
           canChange ? "cursor-grab active:cursor-grabbing" : "cursor-default"
         } ${isDragging ? "opacity-50" : ""}`}
       >
         <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-medium text-slate-900">{t.title}</p>
+          <p className="text-sm font-medium text-foreground">{t.title}</p>
           {isAdmin && (
             <div className="flex shrink-0 gap-0.5 opacity-0 transition group-hover:opacity-100">
               <button
                 type="button"
                 onClick={() => openEdit(t)}
-                className="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-ring"
+                className="rounded-md p-1 text-muted-foreground hover:bg-surface-muted hover:text-foreground focus-ring"
                 aria-label="Edit task"
               >
                 <Pencil className="h-3.5 w-3.5" aria-hidden />
@@ -416,7 +416,7 @@ export default function TasksPage() {
               <button
                 type="button"
                 onClick={() => onDelete(t)}
-                className="rounded-md p-1 text-slate-500 hover:bg-rose-50 hover:text-rose-600 focus-ring"
+                className="rounded-md p-1 text-muted-foreground hover:bg-destructive-subtle hover:text-destructive focus-ring"
                 aria-label="Delete task"
               >
                 <Trash2 className="h-3.5 w-3.5" aria-hidden />
@@ -425,25 +425,25 @@ export default function TasksPage() {
           )}
         </div>
         {t.description && (
-          <p className="mt-1 line-clamp-2 text-xs text-slate-600">{t.description}</p>
+          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{t.description}</p>
         )}
-        <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
+        <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
           {project && (
             <Link
               to={`/projects/${project.id}`}
-              className="rounded-md bg-slate-100 px-2 py-0.5 text-slate-700 hover:bg-slate-200"
+              className="rounded-md bg-surface-muted px-2 py-0.5 text-foreground hover:bg-border"
             >
               {project.name}
             </Link>
           )}
           {t.due_date && (
-            <span className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-0.5 ring-1 ring-slate-200">
+            <span className="inline-flex items-center gap-1 rounded-md bg-surface-muted px-2 py-0.5 ring-1 ring-border">
               <Calendar className="h-3 w-3" aria-hidden />
               {formatDue(t.due_date)}
             </span>
           )}
           <span className="inline-flex items-center gap-1">
-            <UserCircle2 className="h-3 w-3 text-slate-400" aria-hidden />
+            <UserCircle2 className="h-3 w-3 text-subtle" aria-hidden />
             {t.assigned_to == null
               ? "Unassigned"
               : t.assigned_to === user?.id
@@ -459,8 +459,8 @@ export default function TasksPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Tasks</h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Tasks</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             {isAdmin ? "Every task across the workspace." : "Tasks assigned to you."}
           </p>
         </div>
@@ -469,17 +469,17 @@ export default function TasksPage() {
       {isAdmin && (
         <Card>
           <div className="mb-4 flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600 ring-1 ring-brand-200">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-subtle text-brand ring-1 ring-brand-subtle-border">
               <Plus className="h-4 w-4" aria-hidden />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-slate-900">New task</h2>
-              <p className="text-xs text-slate-500">Pick a project and assign a member.</p>
+              <h2 className="text-sm font-semibold text-foreground">New task</h2>
+              <p className="text-xs text-muted-foreground">Pick a project and assign a member.</p>
             </div>
           </div>
           <form noValidate onSubmit={onCreate} className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Project
               </label>
               <Select<number>
@@ -496,11 +496,11 @@ export default function TasksPage() {
                 emptyText="No projects yet"
               />
               {newErrors.project_id && (
-                <p className="mt-1 text-xs text-rose-600">! {newErrors.project_id}</p>
+                <p className="mt-1 text-xs text-destructive">! {newErrors.project_id}</p>
               )}
             </div>
             <div>
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Assignee
               </label>
               <Select<number>
@@ -520,7 +520,7 @@ export default function TasksPage() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Title
               </label>
               <input
@@ -530,16 +530,16 @@ export default function TasksPage() {
                   if (newErrors.title) setNewErrors((p) => ({ ...p, title: undefined }));
                 }}
                 placeholder="Ship onboarding flow"
-                className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-400 focus-ring ${
-                  newErrors.title ? "border-rose-400" : "border-slate-300"
+                className={`mt-1 w-full rounded-lg border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-subtle hover:border-border-strong focus-ring ${
+                  newErrors.title ? "border-destructive" : "border-border-strong"
                 }`}
               />
               {newErrors.title && (
-                <p className="mt-1 text-xs text-rose-600">! {newErrors.title}</p>
+                <p className="mt-1 text-xs text-destructive">! {newErrors.title}</p>
               )}
             </div>
             <div className="sm:col-span-2">
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Description
               </label>
               <textarea
@@ -547,11 +547,11 @@ export default function TasksPage() {
                 onChange={(e) => setNewDescription(e.target.value)}
                 placeholder="Short brief (optional)"
                 rows={3}
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-400 focus-ring"
+                className="mt-1 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-foreground placeholder:text-subtle hover:border-border-strong focus-ring"
               />
             </div>
             <div>
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Status
               </label>
               <Select<TaskStatus>
@@ -561,7 +561,7 @@ export default function TasksPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Due date
               </label>
               <DateTimePicker value={newDue} onChange={setNewDue} placeholder="Pick a due date" />
@@ -586,24 +586,24 @@ export default function TasksPage() {
       <Card>
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[200px]">
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Search
             </label>
             <div className="relative mt-1">
               <Search
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle"
                 aria-hidden
               />
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Title or description"
-                className="w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-400 focus-ring"
+                className="w-full rounded-lg border border-border-strong bg-surface pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-subtle hover:border-border-strong focus-ring"
               />
             </div>
           </div>
           <div className="w-full sm:w-40">
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Status
             </label>
             <Select<string>
@@ -613,7 +613,7 @@ export default function TasksPage() {
             />
           </div>
           <div className="w-full sm:w-48">
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Project
             </label>
             <Select<string>
@@ -625,7 +625,7 @@ export default function TasksPage() {
           </div>
           {isAdmin && (
             <div className="w-full sm:w-44">
-              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Assignee
               </label>
               <Select<string>
@@ -641,14 +641,14 @@ export default function TasksPage() {
                 <X className="h-3.5 w-3.5" aria-hidden /> Clear
               </Button>
             )}
-            <div className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5">
+            <div className="inline-flex rounded-lg border border-border-strong bg-surface p-0.5">
               <button
                 type="button"
                 onClick={() => setViewMode("list")}
                 className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition focus-ring ${
                   viewMode === "list"
-                    ? "bg-brand-600 text-white shadow-sm"
-                    : "text-slate-600 hover:bg-slate-100"
+                    ? "bg-brand text-brand-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-surface-muted"
                 }`}
                 aria-pressed={viewMode === "list"}
               >
@@ -659,8 +659,8 @@ export default function TasksPage() {
                 onClick={() => setViewMode("board")}
                 className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition focus-ring ${
                   viewMode === "board"
-                    ? "bg-brand-600 text-white shadow-sm"
-                    : "text-slate-600 hover:bg-slate-100"
+                    ? "bg-brand text-brand-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-surface-muted"
                 }`}
                 aria-pressed={viewMode === "board"}
               >
@@ -670,7 +670,7 @@ export default function TasksPage() {
           </div>
         </div>
         {hasActiveFilters && !tasksQuery.isLoading && (
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-xs text-muted-foreground">
             Showing {filteredTasks.length} of {tasks.length}
             {filteredTasks.length === 1 ? " task" : " tasks"}.
           </p>
@@ -723,22 +723,22 @@ export default function TasksPage() {
                 onDrop={(e) => handleDrop(e, col.status)}
                 className={`rounded-2xl border p-3 transition ${
                   isOver
-                    ? "border-brand-400 bg-brand-50/60 ring-2 ring-brand-200"
-                    : "border-slate-200 bg-slate-50/50"
+                    ? "border-brand bg-brand-subtle/60 ring-2 ring-brand-subtle-border"
+                    : "border-border bg-surface-muted/50"
                 }`}
               >
                 <div className="mb-3 flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">
                     <span className={`h-2 w-2 rounded-full ${col.dotClass}`} />
-                    <h3 className="text-sm font-semibold text-slate-900">{col.status}</h3>
+                    <h3 className="text-sm font-semibold text-foreground">{col.status}</h3>
                   </div>
-                  <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+                  <span className="rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-border">
                     {colTasks.length}
                   </span>
                 </div>
                 <div className="min-h-[120px] space-y-2">
                   {colTasks.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-slate-300 bg-white/60 px-3 py-6 text-center text-xs text-slate-400">
+                    <div className="rounded-xl border border-dashed border-border-strong bg-surface/60 px-3 py-6 text-center text-xs text-subtle">
                       Drop tasks here
                     </div>
                   ) : (
@@ -752,8 +752,8 @@ export default function TasksPage() {
       ) : (
         <Card padding={false}>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200 text-sm">
-              <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+            <table className="min-w-full divide-y divide-border text-sm">
+              <thead className="bg-surface-muted text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th className="px-5 py-3">Title</th>
                   <th className="px-5 py-3">Project</th>
@@ -765,17 +765,17 @@ export default function TasksPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-border">
                 {filteredTasks.map((t) => {
                   const project = projectsById.get(t.project_id);
                   const canChangeStatus =
                     isAdmin || (user?.id !== undefined && t.assigned_to === user.id);
                   return (
-                    <tr key={t.id} className="transition hover:bg-slate-50">
+                    <tr key={t.id} className="transition hover:bg-surface-muted">
                       <td className="px-5 py-3 align-top">
-                        <p className="font-medium text-slate-900">{t.title}</p>
+                        <p className="font-medium text-foreground">{t.title}</p>
                         {t.description && (
-                          <p className="mt-0.5 line-clamp-2 text-xs text-slate-600">
+                          <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
                             {t.description}
                           </p>
                         )}
@@ -784,25 +784,25 @@ export default function TasksPage() {
                         {project ? (
                           <Link
                             to={`/projects/${project.id}`}
-                            className="text-slate-700 hover:text-brand-700"
+                            className="text-foreground hover:text-brand-hover"
                           >
                             {project.name}
                           </Link>
                         ) : (
-                          <span className="text-slate-400">—</span>
+                          <span className="text-subtle">—</span>
                         )}
                       </td>
-                      <td className="px-5 py-3 align-top text-slate-700">
+                      <td className="px-5 py-3 align-top text-foreground">
                         {t.assigned_to ? (
                           <span className="inline-flex items-center gap-2">
-                            <UserCircle2 className="h-4 w-4 text-slate-400" aria-hidden />
+                            <UserCircle2 className="h-4 w-4 text-subtle" aria-hidden />
                             {t.assigned_to === user?.id ? "You" : `User #${t.assigned_to}`}
                           </span>
                         ) : (
-                          <span className="text-slate-400">Unassigned</span>
+                          <span className="text-subtle">Unassigned</span>
                         )}
                       </td>
-                      <td className="px-5 py-3 align-top text-slate-700">
+                      <td className="px-5 py-3 align-top text-foreground">
                         {formatDue(t.due_date)}
                       </td>
                       <td className="px-5 py-3 align-top">
@@ -865,7 +865,7 @@ export default function TasksPage() {
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Title
             </label>
             <input
@@ -874,27 +874,27 @@ export default function TasksPage() {
                 setEtTitle(e.target.value);
                 if (etErrors.title) setEtErrors((p) => ({ ...p, title: undefined }));
               }}
-              className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 hover:border-slate-400 focus-ring ${
-                etErrors.title ? "border-rose-400" : "border-slate-300"
+              className={`mt-1 w-full rounded-lg border bg-surface px-3 py-2 text-sm text-foreground hover:border-border-strong focus-ring ${
+                etErrors.title ? "border-destructive" : "border-border-strong"
               }`}
             />
             {etErrors.title && (
-              <p className="mt-1 text-xs text-rose-600">! {etErrors.title}</p>
+              <p className="mt-1 text-xs text-destructive">! {etErrors.title}</p>
             )}
           </div>
           <div className="sm:col-span-2">
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Description
             </label>
             <textarea
               value={etDescription}
               onChange={(e) => setEtDescription(e.target.value)}
               rows={3}
-              className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:border-slate-400 focus-ring"
+              className="mt-1 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-foreground hover:border-border-strong focus-ring"
             />
           </div>
           <div>
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Assignee
             </label>
             <Select<number>
@@ -907,7 +907,7 @@ export default function TasksPage() {
             />
           </div>
           <div>
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Status
             </label>
             <Select<TaskStatus>
@@ -917,7 +917,7 @@ export default function TasksPage() {
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Due date
             </label>
             <DateTimePicker value={etDue} onChange={setEtDue} placeholder="Pick a due date" />

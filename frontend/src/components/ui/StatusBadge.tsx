@@ -2,9 +2,9 @@ import clsx from "clsx";
 import type { TaskStatus } from "@/services/types";
 
 const STATUS_STYLES: Record<TaskStatus, string> = {
-  Todo: "bg-slate-100 text-slate-700 ring-slate-200",
-  "In Progress": "bg-amber-50 text-amber-700 ring-amber-200",
-  Completed: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  Todo: "bg-surface-muted text-foreground ring-border",
+  "In Progress": "bg-warning-subtle text-warning-subtle-foreground ring-warning-subtle-border",
+  Completed: "bg-success-subtle text-success-subtle-foreground ring-success-subtle-border",
 };
 
 export function StatusBadge({ status }: { status: TaskStatus }) {

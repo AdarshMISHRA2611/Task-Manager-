@@ -2,36 +2,148 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body,
-#root {
-  height: 100%;
-}
+@layer base {
+  :root {
+    /* Surfaces */
+    --background: 248 250 252;       /* slate-50 */
+    --foreground: 15 23 42;          /* slate-900 */
+    --surface: 255 255 255;          /* white */
+    --surface-muted: 241 245 249;    /* slate-100 */
+    --surface-raised: 255 255 255;   /* white (same as surface in light) */
+    --muted-foreground: 100 116 139; /* slate-500 */
+    --subtle: 148 163 184;           /* slate-400 */
+    --border: 226 232 240;           /* slate-200 */
+    --border-strong: 203 213 225;    /* slate-300 */
+    --input: 255 255 255;
+    --ring: 37 99 235;               /* blue-600 */
+    --shadow-color: 15 23 42;        /* slate-900 */
 
-body {
-  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: #f8fafc;
-  color: #0f172a;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    /* Brand: blue */
+    --brand: 37 99 235;              /* blue-600 */
+    --brand-foreground: 255 255 255;
+    --brand-hover: 29 78 216;        /* blue-700 */
+    --brand-active: 30 64 175;       /* blue-800 */
+    --brand-subtle: 219 234 254;     /* blue-100 */
+    --brand-subtle-foreground: 29 78 216; /* blue-700 */
+    --brand-subtle-border: 191 219 254;   /* blue-200 */
+
+    /* Accent: teal */
+    --accent: 20 184 166;            /* teal-500 */
+    --accent-foreground: 255 255 255;
+    --accent-hover: 13 148 136;      /* teal-600 */
+    --accent-subtle: 204 251 241;    /* teal-100 */
+    --accent-subtle-foreground: 15 118 110; /* teal-700 */
+    --accent-subtle-border: 153 246 228;    /* teal-200 */
+
+    /* Success: emerald */
+    --success: 16 185 129;
+    --success-subtle: 209 250 229;
+    --success-subtle-foreground: 4 120 87;
+    --success-subtle-border: 167 243 208;
+
+    /* Warning: amber */
+    --warning: 245 158 11;
+    --warning-subtle: 254 243 199;
+    --warning-subtle-foreground: 180 83 9;
+    --warning-subtle-border: 253 230 138;
+
+    /* Destructive: rose */
+    --destructive: 225 29 72;        /* rose-600 */
+    --destructive-foreground: 255 255 255;
+    --destructive-hover: 190 18 60;
+    --destructive-subtle: 255 228 230; /* rose-100 */
+    --destructive-subtle-foreground: 190 18 60;
+    --destructive-subtle-border: 254 205 211; /* rose-200 */
+  }
+
+  .dark {
+    /* Surfaces */
+    --background: 2 6 23;            /* slate-950 */
+    --foreground: 226 232 240;       /* slate-200 */
+    --surface: 15 23 42;             /* slate-900 */
+    --surface-muted: 30 41 59;       /* slate-800 */
+    --surface-raised: 30 41 59;      /* slate-800 elevated */
+    --muted-foreground: 148 163 184; /* slate-400 */
+    --subtle: 100 116 139;           /* slate-500 */
+    --border: 30 41 59;              /* slate-800 */
+    --border-strong: 51 65 85;       /* slate-700 */
+    --input: 15 23 42;               /* slate-900 */
+    --ring: 96 165 250;              /* blue-400 */
+    --shadow-color: 0 0 0;
+
+    /* Brand: blue (brighter for contrast on dark) */
+    --brand: 59 130 246;             /* blue-500 */
+    --brand-foreground: 255 255 255;
+    --brand-hover: 96 165 250;       /* blue-400 */
+    --brand-active: 37 99 235;       /* blue-600 */
+    --brand-subtle: 30 58 138;       /* blue-900 */
+    --brand-subtle-foreground: 191 219 254; /* blue-200 */
+    --brand-subtle-border: 30 64 175;       /* blue-800 */
+
+    /* Accent: teal */
+    --accent: 45 212 191;            /* teal-400 */
+    --accent-foreground: 4 47 46;
+    --accent-hover: 94 234 212;      /* teal-300 */
+    --accent-subtle: 19 78 74;       /* teal-900 */
+    --accent-subtle-foreground: 153 246 228; /* teal-200 */
+    --accent-subtle-border: 17 94 89;        /* teal-800 */
+
+    /* Success */
+    --success: 52 211 153;
+    --success-subtle: 6 78 59;       /* emerald-900 */
+    --success-subtle-foreground: 167 243 208;
+    --success-subtle-border: 6 95 70;
+
+    /* Warning */
+    --warning: 251 191 36;
+    --warning-subtle: 120 53 15;     /* amber-900 */
+    --warning-subtle-foreground: 253 230 138;
+    --warning-subtle-border: 146 64 14;
+
+    /* Destructive */
+    --destructive: 244 63 94;        /* rose-500 */
+    --destructive-foreground: 255 255 255;
+    --destructive-hover: 251 113 133;
+    --destructive-subtle: 136 19 55; /* rose-900 */
+    --destructive-subtle-foreground: 254 205 211;
+    --destructive-subtle-border: 159 18 57; /* rose-800 */
+  }
+
+  * {
+    border-color: rgb(var(--border));
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+      Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
 }
 
 @layer utilities {
   .focus-ring:focus-visible {
     outline: 2px solid transparent;
     box-shadow:
-      0 0 0 2px rgba(16, 185, 129, 0.45),
-      0 0 0 4px #ffffff;
+      0 0 0 2px rgb(var(--ring) / 0.5),
+      0 0 0 4px rgb(var(--background));
     border-radius: 0.5rem;
   }
 
   .text-gradient {
     background-image: linear-gradient(
       135deg,
-      #10b981 0%,
-      #059669 50%,
-      #047857 100%
+      rgb(var(--brand)) 0%,
+      rgb(var(--accent)) 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
@@ -39,25 +151,41 @@ body {
   }
 
   .surface-grid {
-    background-color: #f8fafc;
+    background-color: rgb(var(--background));
     background-image:
       radial-gradient(
         circle at 20% -10%,
-        rgba(16, 185, 129, 0.18),
+        rgb(var(--brand) / 0.18),
         transparent 55%
       ),
       radial-gradient(
         circle at 80% 0%,
-        rgba(5, 150, 105, 0.12),
+        rgb(var(--accent) / 0.12),
         transparent 55%
       ),
-      linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+      linear-gradient(rgb(var(--foreground) / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--foreground) / 0.05) 1px, transparent 1px);
     background-size:
       auto,
       auto,
       32px 32px,
       32px 32px;
+  }
+
+  .dark .surface-grid {
+    background-image:
+      radial-gradient(
+        circle at 20% -10%,
+        rgb(var(--brand) / 0.22),
+        transparent 55%
+      ),
+      radial-gradient(
+        circle at 80% 0%,
+        rgb(var(--accent) / 0.14),
+        transparent 55%
+      ),
+      linear-gradient(rgb(var(--foreground) / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--foreground) / 0.05) 1px, transparent 1px);
   }
 }
 
@@ -66,13 +194,13 @@ body {
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: rgb(var(--surface-muted));
 }
 ::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
+  background-color: rgb(var(--border-strong));
   border-radius: 999px;
-  border: 2px solid #f1f5f9;
+  border: 2px solid rgb(var(--surface-muted));
 }
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8;
+  background-color: rgb(var(--subtle));
 }

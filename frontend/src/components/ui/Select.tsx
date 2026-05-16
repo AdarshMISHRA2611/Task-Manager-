@@ -133,34 +133,34 @@ export function Select<V extends string | number = string>({
         aria-haspopup="listbox"
         aria-expanded={open}
         className={clsx(
-          "flex w-full items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white text-left text-sm text-slate-900 transition focus-ring",
+          "flex w-full items-center justify-between gap-2 rounded-lg border border-border-strong bg-input text-left text-sm text-foreground transition focus-ring",
           size === "sm" ? "px-2.5 py-1.5" : "px-3 py-2.5",
-          disabled ? "cursor-not-allowed opacity-60" : "hover:border-slate-400"
+          disabled ? "cursor-not-allowed opacity-60" : "hover:border-border-strong"
         )}
       >
-        <span className={clsx("flex min-w-0 flex-col", !selected && "text-slate-400")}>
+        <span className={clsx("flex min-w-0 flex-col", !selected && "text-subtle")}>
           <span className="truncate">{selected?.label ?? placeholder}</span>
           {selected?.description && (
-            <span className="truncate text-[11px] text-slate-500">{selected.description}</span>
+            <span className="truncate text-[11px] text-muted-foreground">{selected.description}</span>
           )}
         </span>
-        <ChevronDown className={clsx("h-4 w-4 shrink-0 text-slate-500 transition", open && "rotate-180")} />
+        <ChevronDown className={clsx("h-4 w-4 shrink-0 text-muted-foreground transition", open && "rotate-180")} />
       </button>
 
       {open && (
         <div
-          className="absolute left-0 right-0 z-50 mt-2 origin-top overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-slate-200 animate-fade-in"
+          className="absolute left-0 right-0 z-50 mt-2 origin-top overflow-hidden rounded-lg bg-surface shadow-lg ring-1 ring-border animate-fade-in"
         >
           {searchable && (
-            <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2">
-              <Search className="h-4 w-4 text-slate-400" />
+            <div className="flex items-center gap-2 border-b border-border bg-surface-muted px-3 py-2">
+              <Search className="h-4 w-4 text-subtle" />
               <input
                 ref={searchInputRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={onKeyDown}
                 placeholder="Search…"
-                className="w-full bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                className="w-full bg-transparent text-sm text-foreground placeholder:text-subtle focus:outline-none"
               />
             </div>
           )}
@@ -170,7 +170,7 @@ export function Select<V extends string | number = string>({
             className="max-h-64 overflow-y-auto py-1"
           >
             {filtered.length === 0 ? (
-              <p className="px-3 py-2 text-sm text-slate-500">{emptyText}</p>
+              <p className="px-3 py-2 text-sm text-muted-foreground">{emptyText}</p>
             ) : (
               filtered.map((opt, idx) => {
                 const isSelected = opt.value === value;
@@ -188,22 +188,22 @@ export function Select<V extends string | number = string>({
                     className={clsx(
                       "flex w-full items-start gap-2 px-3 py-2 text-left text-sm transition",
                       opt.disabled
-                        ? "cursor-not-allowed text-slate-400"
+                        ? "cursor-not-allowed text-subtle"
                         : isSelected
-                        ? "bg-brand-50 text-brand-700"
+                        ? "bg-brand-subtle text-brand-subtle-foreground"
                         : isActive
-                        ? "bg-slate-100 text-slate-900"
-                        : "text-slate-700 hover:bg-slate-50",
+                        ? "bg-surface-muted text-foreground"
+                        : "text-foreground hover:bg-surface-muted",
                       isSelected && "font-semibold"
                     )}
                   >
                     <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center">
-                      {isSelected ? <Check className="h-3.5 w-3.5 text-brand-600" /> : null}
+                      {isSelected ? <Check className="h-3.5 w-3.5 text-brand" /> : null}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate">{opt.label}</span>
                       {opt.description && (
-                        <span className="block truncate text-[11px] text-slate-500">{opt.description}</span>
+                        <span className="block truncate text-[11px] text-muted-foreground">{opt.description}</span>
                       )}
                     </span>
                   </button>

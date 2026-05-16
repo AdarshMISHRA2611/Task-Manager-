@@ -21,7 +21,7 @@ function strengthOf(pw: string): { score: 0 | 1 | 2 | 3 | 4 | 5; label: string }
 }
 
 const STRENGTH_COLORS = [
-  "bg-slate-200",
+  "bg-border",
   "bg-rose-400",
   "bg-orange-400",
   "bg-amber-400",
@@ -73,24 +73,24 @@ export default function SignupPage() {
     <div className="surface-grid flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md animate-fade-in">
         <div className="mb-8 flex flex-col items-center text-center">
-          <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-glow">
+          <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand text-brand-foreground shadow-glow">
             <ClipboardCheck className="h-7 w-7" />
           </span>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Create your account</h1>
-          <p className="mt-1 text-sm text-slate-600">Start collaborating with your team.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Create your account</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Start collaborating with your team.</p>
         </div>
 
         <form
           onSubmit={onSubmit}
           noValidate
-          className="space-y-5 rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200"
+          className="space-y-5 rounded-2xl bg-surface p-6 shadow-xl ring-1 ring-border"
         >
           <div>
-            <label htmlFor="name" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label htmlFor="name" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Name
             </label>
             <div className="relative">
-              <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
               <input
                 id="name"
                 type="text"
@@ -102,19 +102,19 @@ export default function SignupPage() {
                 }}
                 placeholder="Jane Doe"
                 className={`w-full rounded-lg border ${
-                  errors.name ? "border-rose-400" : "border-slate-300"
-                } bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition hover:border-slate-400 focus-ring`}
+                  errors.name ? "border-destructive" : "border-border-strong"
+                } bg-surface py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-subtle transition hover:border-border-strong focus-ring`}
               />
             </div>
-            {errors.name && <p className="mt-1.5 text-xs text-rose-600">! {errors.name}</p>}
+            {errors.name && <p className="mt-1.5 text-xs text-destructive">! {errors.name}</p>}
           </div>
 
           <div>
-            <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Email
             </label>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
               <input
                 id="email"
                 type="email"
@@ -126,19 +126,19 @@ export default function SignupPage() {
                 }}
                 placeholder="you@example.com"
                 className={`w-full rounded-lg border ${
-                  errors.email ? "border-rose-400" : "border-slate-300"
-                } bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition hover:border-slate-400 focus-ring`}
+                  errors.email ? "border-destructive" : "border-border-strong"
+                } bg-surface py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-subtle transition hover:border-border-strong focus-ring`}
               />
             </div>
-            {errors.email && <p className="mt-1.5 text-xs text-rose-600">! {errors.email}</p>}
+            {errors.email && <p className="mt-1.5 text-xs text-destructive">! {errors.email}</p>}
           </div>
 
           <div>
-            <label htmlFor="password" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label htmlFor="password" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Password
             </label>
             <div className="relative">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
               <input
                 id="password"
                 type={showPw ? "text" : "password"}
@@ -150,19 +150,19 @@ export default function SignupPage() {
                 }}
                 placeholder="At least 8 characters"
                 className={`w-full rounded-lg border ${
-                  errors.password ? "border-rose-400" : "border-slate-300"
-                } bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder:text-slate-400 transition hover:border-slate-400 focus-ring`}
+                  errors.password ? "border-destructive" : "border-border-strong"
+                } bg-surface py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-subtle transition hover:border-border-strong focus-ring`}
               />
               <button
                 type="button"
                 onClick={() => setShowPw((s) => !s)}
                 aria-label={showPw ? "Hide password" : "Show password"}
-                className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-ring"
+                className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-surface-muted hover:text-foreground focus-ring"
               >
                 {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            {errors.password && <p className="mt-1.5 text-xs text-rose-600">! {errors.password}</p>}
+            {errors.password && <p className="mt-1.5 text-xs text-destructive">! {errors.password}</p>}
 
             <div className="mt-2.5">
               <div className="flex gap-1">
@@ -170,20 +170,20 @@ export default function SignupPage() {
                   <span
                     key={seg}
                     className={`h-1.5 flex-1 rounded-full transition ${
-                      pwStrength.score >= seg ? STRENGTH_COLORS[pwStrength.score]! : "bg-slate-200"
+                      pwStrength.score >= seg ? STRENGTH_COLORS[pwStrength.score]! : "bg-border"
                     }`}
                   />
                 ))}
               </div>
-              <p className="mt-1.5 flex justify-between text-[11px] text-slate-500">
+              <p className="mt-1.5 flex justify-between text-[11px] text-muted-foreground">
                 <span>Strength</span>
-                <span className="font-medium text-slate-700">{pwStrength.label || "—"}</span>
+                <span className="font-medium text-foreground">{pwStrength.label || "—"}</span>
               </p>
             </div>
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-600">
-            You'll join as a <span className="font-semibold text-brand-700">Member</span>. The very first user becomes the
+          <div className="rounded-lg border border-border bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
+            You'll join as a <span className="font-semibold text-brand-subtle-foreground">Member</span>. The very first user becomes the
             Admin automatically.
           </div>
 
@@ -192,9 +192,9 @@ export default function SignupPage() {
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-600">
+        <p className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link to="/login" className="font-semibold text-brand-600 hover:text-brand-700">
+          <Link to="/login" className="font-semibold text-brand hover:text-brand-hover">
             Sign in
           </Link>
         </p>

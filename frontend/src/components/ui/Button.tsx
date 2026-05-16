@@ -3,13 +3,13 @@ import clsx from "clsx";
 
 const variants = {
   primary:
-    "bg-brand-600 text-white shadow-sm hover:bg-brand-700 active:bg-brand-800 disabled:opacity-50",
+    "bg-brand text-brand-foreground shadow-sm hover:bg-brand-hover active:bg-brand-active disabled:opacity-50",
   secondary:
-    "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50",
+    "bg-surface text-foreground border border-border-strong hover:bg-surface-muted hover:border-border-strong disabled:opacity-50",
   ghost:
-    "text-slate-600 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-50",
+    "text-muted-foreground hover:text-foreground hover:bg-surface-muted disabled:opacity-50",
   danger:
-    "bg-rose-600 text-white shadow-sm hover:bg-rose-700 active:bg-rose-800 disabled:opacity-50",
+    "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive-hover active:bg-destructive-hover disabled:opacity-50",
 } as const;
 
 export function Button({

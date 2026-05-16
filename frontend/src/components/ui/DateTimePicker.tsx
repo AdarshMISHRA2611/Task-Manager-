@@ -76,19 +76,19 @@ function Stepper({ value, onChange, min, max, step = 1, label }: StepperProps) {
   };
   return (
     <div className="flex flex-col items-center gap-1">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{label}</span>
-      <div className="flex flex-col items-center overflow-hidden rounded-lg border border-slate-300 bg-white">
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>
+      <div className="flex flex-col items-center overflow-hidden rounded-lg border border-border-strong bg-input">
         <button
           type="button"
           onClick={() => onChange(wrap(stepClamped(value + step)))}
-          className="px-2 py-0.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-ring"
+          className="px-2 py-0.5 text-muted-foreground hover:bg-surface-muted hover:text-foreground focus-ring"
           aria-label={`Increase ${label}`}
         >
           <ChevronUp className="h-3.5 w-3.5" />
         </button>
         <input
           inputMode="numeric"
-          className="w-12 bg-transparent py-1 text-center text-sm font-semibold text-slate-900 focus:outline-none"
+          className="w-12 bg-transparent py-1 text-center text-sm font-semibold text-foreground focus:outline-none"
           value={pad(value)}
           onChange={(e) => {
             const n = parseInt(e.target.value.replace(/\D/g, ""), 10);
@@ -103,7 +103,7 @@ function Stepper({ value, onChange, min, max, step = 1, label }: StepperProps) {
         <button
           type="button"
           onClick={() => onChange(wrap(stepClamped(value - step)))}
-          className="px-2 py-0.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-ring"
+          className="px-2 py-0.5 text-muted-foreground hover:bg-surface-muted hover:text-foreground focus-ring"
           aria-label={`Decrease ${label}`}
         >
           <ChevronDown className="h-3.5 w-3.5" />
@@ -237,14 +237,14 @@ export function DateTimePicker({
       disabled={disabled}
       onClick={() => !disabled && setOpen((o) => !o)}
       className={clsx(
-        "flex w-full items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-left text-sm transition focus-ring",
-        disabled ? "cursor-not-allowed opacity-60" : "hover:border-slate-400",
+        "flex w-full items-center justify-between gap-2 rounded-lg border border-border-strong bg-input px-3 py-2.5 text-left text-sm transition focus-ring",
+        disabled ? "cursor-not-allowed opacity-60" : "hover:border-border-strong",
         className
       )}
     >
       <span className="flex min-w-0 items-center gap-2">
-        <Calendar className="h-4 w-4 shrink-0 text-slate-500" />
-        <span className={clsx("truncate", !parsed && "text-slate-400", parsed && "text-slate-900")}>
+        <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <span className={clsx("truncate", !parsed && "text-subtle", parsed && "text-foreground")}>
           {parsed ? displayDate(parsed) : placeholder}
         </span>
       </span>
@@ -265,12 +265,12 @@ export function DateTimePicker({
                 onChange("");
               }
             }}
-            className="rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600 focus-ring"
+            className="rounded-md p-1 text-subtle hover:bg-destructive-subtle hover:text-destructive focus-ring"
           >
             <X className="h-3.5 w-3.5" />
           </span>
         )}
-        <ChevronDown className={clsx("h-4 w-4 shrink-0 text-slate-500 transition", open && "rotate-180")} />
+        <ChevronDown className={clsx("h-4 w-4 shrink-0 text-muted-foreground transition", open && "rotate-180")} />
       </span>
     </button>
   );
@@ -281,31 +281,31 @@ export function DateTimePicker({
           <div
             ref={popoverRef}
             style={{ top: coords.top, left: coords.left, width: coords.width }}
-            className="fixed z-[110] rounded-2xl bg-white p-4 shadow-2xl ring-1 ring-slate-200 animate-fade-in"
+            className="fixed z-[110] rounded-2xl bg-surface p-4 shadow-2xl ring-1 ring-border animate-fade-in"
           >
             <div className="flex items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={() => setView((v) => new Date(v.getFullYear(), v.getMonth() - 1, 1))}
-                className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-ring"
+                className="rounded-lg p-1.5 text-muted-foreground hover:bg-surface-muted hover:text-foreground focus-ring"
                 aria-label="Previous month"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <p className="text-sm font-semibold text-slate-900">
+              <p className="text-sm font-semibold text-foreground">
                 {view.toLocaleString(undefined, { month: "long", year: "numeric" })}
               </p>
               <button
                 type="button"
                 onClick={() => setView((v) => new Date(v.getFullYear(), v.getMonth() + 1, 1))}
-                className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-ring"
+                className="rounded-lg p-1.5 text-muted-foreground hover:bg-surface-muted hover:text-foreground focus-ring"
                 aria-label="Next month"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase text-slate-500">
+            <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase text-muted-foreground">
               {WEEKDAYS.map((d, i) => (
                 <span key={`${d}-${i}`}>{d}</span>
               ))}
@@ -324,11 +324,11 @@ export function DateTimePicker({
                     onClick={() => pickDay(d)}
                     className={clsx(
                       "h-9 rounded-lg text-sm transition focus-ring",
-                      !inMonth && !isPast && "text-slate-300",
-                      inMonth && !isSelected && !isPast && "text-slate-700 hover:bg-slate-100",
-                      isToday && !isSelected && "ring-1 ring-brand-400",
-                      isSelected && "bg-brand-600 text-white shadow-glow",
-                      isPast && "cursor-not-allowed text-slate-300"
+                      !inMonth && !isPast && "text-subtle",
+                      inMonth && !isSelected && !isPast && "text-foreground hover:bg-surface-muted",
+                      isToday && !isSelected && "ring-1 ring-brand",
+                      isSelected && "bg-brand text-brand-foreground shadow-glow",
+                      isPast && "cursor-not-allowed text-subtle"
                     )}
                   >
                     {d.getDate()}
@@ -340,21 +340,21 @@ export function DateTimePicker({
             <div className="mt-4 flex items-end justify-between gap-3">
               <div className="flex items-end gap-2">
                 <Stepper value={hour} min={0} max={23} step={1} label="Hour" onChange={(n) => applyTime(n, minute)} />
-                <span className="pb-2 text-lg font-semibold text-slate-400">:</span>
+                <span className="pb-2 text-lg font-semibold text-subtle">:</span>
                 <Stepper value={minute} min={0} max={59} step={5} label="Min" onChange={(n) => applyTime(hour, n)} />
               </div>
               <div className="flex flex-col gap-1.5">
                 <button
                   type="button"
                   onClick={setNow}
-                  className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 focus-ring"
+                  className="rounded-lg border border-border-strong px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface-muted focus-ring"
                 >
                   Now
                 </button>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-700 focus-ring"
+                  className="rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-brand-foreground hover:bg-brand-hover focus-ring"
                 >
                   Done
                 </button>

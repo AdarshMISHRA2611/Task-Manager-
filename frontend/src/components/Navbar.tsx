@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ClipboardCheck, LogOut, Menu, ShieldCheck, User as UserIcon, Users } from "lucide-react";
+import { ClipboardCheck, LogOut, Menu, Moon, ShieldCheck, Sun, User as UserIcon, Users } from "lucide-react";
 import { useAuth } from "@/services/authContext";
+import { useTheme } from "@/services/themeContext";
 import { useClickOutside, useKey } from "./ui/hooks";
 import { useConfirm } from "./ui/ConfirmDialog";
 
@@ -14,6 +15,7 @@ function initials(name: string) {
 
 export default function Navbar({ onOpenMobile }: { onOpenMobile?: () => void }) {
   const { user, logout } = useAuth();
+  const { resolved, toggle } = useTheme();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const confirm = useConfirm();
@@ -38,89 +40,100 @@ export default function Navbar({ onOpenMobile }: { onOpenMobile?: () => void }) 
   const isAdmin = user?.role === "Admin";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-border bg-surface/80 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
         <div className="flex items-center gap-2">
           {onOpenMobile && (
             <button
               type="button"
-              className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 md:hidden focus-ring"
+              className="inline-flex rounded-lg p-2 text-muted-foreground hover:bg-surface-muted hover:text-foreground md:hidden focus-ring"
               aria-label="Open menu"
               onClick={onOpenMobile}
             >
               <Menu className="h-5 w-5" />
             </button>
           )}
-          <Link to="/dashboard" className="flex items-center gap-2 font-semibold text-slate-900">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-white ring-1 ring-brand-600/40 shadow-sm">
+          <Link to="/dashboard" className="flex items-center gap-2 font-semibold text-foreground">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-brand-foreground ring-1 ring-brand-active/40 shadow-sm">
               <ClipboardCheck className="h-4 w-4" />
             </span>
             <span className="hidden sm:inline">
               <span className="text-gradient">Team</span>
-              <span className="text-slate-700"> Task Manager</span>
+              <span className="text-foreground"> Task Manager</span>
             </span>
           </Link>
         </div>
-        {user && (
-          <div className="relative" ref={wrapperRef}>
-            <button
-              type="button"
-              onClick={() => setOpen((s) => !s)}
-              className="flex items-center gap-2 rounded-full bg-white px-1 py-1 pr-3 ring-1 ring-slate-200 transition hover:ring-brand-400 focus-ring"
-              aria-haspopup="menu"
-              aria-expanded={open}
-            >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-[11px] font-bold text-brand-700 ring-1 ring-brand-200">
-                {initials(user.name)}
-              </span>
-              <span className="hidden max-w-[120px] truncate text-xs font-medium text-slate-700 sm:inline">
-                {user.name}
-              </span>
-            </button>
-            {open && (
-              <div
-                role="menu"
-                className="absolute right-0 z-50 mt-2 w-64 origin-top-right animate-fade-in overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg"
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggle}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-surface-muted hover:text-foreground focus-ring"
+            aria-label={resolved === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            title={resolved === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+          >
+            {resolved === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+          {user && (
+            <div className="relative" ref={wrapperRef}>
+              <button
+                type="button"
+                onClick={() => setOpen((s) => !s)}
+                className="flex items-center gap-2 rounded-full bg-surface px-1 py-1 pr-3 ring-1 ring-border transition hover:ring-brand focus-ring"
+                aria-haspopup="menu"
+                aria-expanded={open}
               >
-                <div className="border-b border-slate-200 px-4 py-3">
-                  <p className="truncate text-sm font-semibold text-slate-900">{user.name}</p>
-                  <p className="truncate text-xs text-slate-500">{user.email}</p>
-                  <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-700 ring-1 ring-brand-200">
-                    <ShieldCheck className="h-3 w-3" /> {user.role}
-                  </span>
-                </div>
-                <div className="p-1">
-                  <Link
-                    to="/profile"
-                    role="menuitem"
-                    onClick={() => setOpen(false)}
-                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                  >
-                    <UserIcon className="h-4 w-4 text-slate-500" /> My profile
-                  </Link>
-                  {isAdmin && (
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-subtle text-[11px] font-bold text-brand-subtle-foreground ring-1 ring-brand-subtle-border">
+                  {initials(user.name)}
+                </span>
+                <span className="hidden max-w-[120px] truncate text-xs font-medium text-foreground sm:inline">
+                  {user.name}
+                </span>
+              </button>
+              {open && (
+                <div
+                  role="menu"
+                  className="absolute right-0 z-50 mt-2 w-64 origin-top-right animate-fade-in overflow-hidden rounded-2xl border border-border bg-surface shadow-lg"
+                >
+                  <div className="border-b border-border px-4 py-3">
+                    <p className="truncate text-sm font-semibold text-foreground">{user.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                    <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-brand-subtle px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-subtle-foreground ring-1 ring-brand-subtle-border">
+                      <ShieldCheck className="h-3 w-3" /> {user.role}
+                    </span>
+                  </div>
+                  <div className="p-1">
                     <Link
-                      to="/team"
+                      to="/profile"
                       role="menuitem"
                       onClick={() => setOpen(false)}
-                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-surface-muted"
                     >
-                      <Users className="h-4 w-4 text-slate-500" /> Manage team
+                      <UserIcon className="h-4 w-4 text-muted-foreground" /> My profile
                     </Link>
-                  )}
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={handleSignOut}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-rose-600 hover:bg-rose-50"
-                  >
-                    <LogOut className="h-4 w-4" /> Sign out
-                  </button>
+                    {isAdmin && (
+                      <Link
+                        to="/team"
+                        role="menuitem"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-surface-muted"
+                      >
+                        <Users className="h-4 w-4 text-muted-foreground" /> Manage team
+                      </Link>
+                    )}
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={handleSignOut}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-destructive hover:bg-destructive-subtle"
+                    >
+                      <LogOut className="h-4 w-4" /> Sign out
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

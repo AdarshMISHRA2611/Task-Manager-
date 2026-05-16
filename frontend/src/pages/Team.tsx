@@ -93,8 +93,8 @@ export default function TeamPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Team</h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Team</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             {adminCount} {adminCount === 1 ? "admin" : "admins"} • {users.length} total
           </p>
         </div>
@@ -103,21 +103,21 @@ export default function TeamPage() {
       <Card>
         <div className="flex flex-wrap items-end gap-3">
           <div className="relative flex-1 min-w-[220px]">
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Search
             </label>
             <div className="relative mt-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" aria-hidden />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name or email"
-                className="w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-400 focus-ring"
+                className="w-full rounded-lg border border-border-strong bg-surface pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-subtle hover:border-border-strong focus-ring"
               />
             </div>
           </div>
           <div className="min-w-[180px]">
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Role
             </label>
             <Select<RoleFilter>
@@ -149,7 +149,7 @@ export default function TeamPage() {
             />
           </div>
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-border">
             {filteredUsers.map((u) => {
               const isSelf = u.id === user?.id;
               const isLastAdmin = u.role === "Admin" && adminCount <= 1;
@@ -159,24 +159,24 @@ export default function TeamPage() {
                   className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-700 ring-1 ring-brand-200">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-subtle text-sm font-semibold text-brand-subtle-foreground ring-1 ring-brand-subtle-border">
                       {initials(u.name)}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-slate-900">
+                      <p className="truncate text-sm font-medium text-foreground">
                         {u.name}
                         {isSelf && (
-                          <span className="ml-2 rounded-md bg-brand-50 px-1.5 py-0.5 text-xs font-medium text-brand-700 ring-1 ring-brand-200">
+                          <span className="ml-2 rounded-md bg-brand-subtle px-1.5 py-0.5 text-xs font-medium text-brand-subtle-foreground ring-1 ring-brand-subtle-border">
                             You
                           </span>
                         )}
                       </p>
-                      <p className="truncate text-xs text-slate-500">{u.email}</p>
+                      <p className="truncate text-xs text-muted-foreground">{u.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {u.role === "Admin" && (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700 ring-1 ring-brand-200">
+                      <span className="inline-flex items-center gap-1 rounded-md bg-brand-subtle px-2 py-1 text-xs font-medium text-brand-subtle-foreground ring-1 ring-brand-subtle-border">
                         <ShieldCheck className="h-3.5 w-3.5" aria-hidden /> Admin
                       </span>
                     )}

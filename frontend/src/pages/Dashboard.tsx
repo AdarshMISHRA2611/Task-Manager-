@@ -12,28 +12,28 @@ type StatTone = "brand" | "slate" | "amber" | "emerald" | "rose";
 
 const TONE_CLASSES: Record<StatTone, { icon: string; ring: string; glow: string }> = {
   brand: {
-    icon: "bg-brand-50 text-brand-700",
-    ring: "hover:ring-brand-200",
-    glow: "group-hover:drop-shadow-[0_4px_12px_rgba(16,185,129,0.35)]",
+    icon: "bg-brand-subtle text-brand-subtle-foreground",
+    ring: "hover:ring-brand-subtle-border",
+    glow: "group-hover:drop-shadow-[0_4px_12px_rgb(var(--brand)/0.35)]",
   },
   slate: {
-    icon: "bg-slate-100 text-slate-700",
-    ring: "hover:ring-slate-200",
+    icon: "bg-surface-muted text-foreground",
+    ring: "hover:ring-border",
     glow: "group-hover:drop-shadow-[0_4px_12px_rgba(100,116,139,0.30)]",
   },
   amber: {
-    icon: "bg-amber-50 text-amber-700",
-    ring: "hover:ring-amber-200",
+    icon: "bg-warning-subtle text-warning-subtle-foreground",
+    ring: "hover:ring-warning-subtle-border",
     glow: "group-hover:drop-shadow-[0_4px_12px_rgba(245,158,11,0.35)]",
   },
   emerald: {
-    icon: "bg-emerald-50 text-emerald-700",
-    ring: "hover:ring-emerald-200",
-    glow: "group-hover:drop-shadow-[0_4px_12px_rgba(16,185,129,0.35)]",
+    icon: "bg-success-subtle text-success-subtle-foreground",
+    ring: "hover:ring-success-subtle-border",
+    glow: "group-hover:drop-shadow-[0_4px_12px_rgb(var(--brand)/0.35)]",
   },
   rose: {
-    icon: "bg-rose-50 text-rose-700",
-    ring: "hover:ring-rose-200",
+    icon: "bg-destructive-subtle text-destructive-subtle-foreground",
+    ring: "hover:ring-destructive-subtle-border",
     glow: "group-hover:drop-shadow-[0_4px_12px_rgba(244,63,94,0.35)]",
   },
 };
@@ -52,17 +52,17 @@ function StatCard({
   const t = TONE_CLASSES[tone];
   return (
     <div
-      className={`group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm ring-1 ring-transparent transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${t.ring}`}
+      className={`group rounded-2xl border border-border bg-surface p-5 shadow-sm ring-1 ring-transparent transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${t.ring}`}
     >
       <div className="flex items-start justify-between">
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
         <span
-          className={`flex h-9 w-9 items-center justify-center rounded-xl ring-1 ring-slate-100 transition group-hover:scale-110 ${t.icon} ${t.glow}`}
+          className={`flex h-9 w-9 items-center justify-center rounded-xl ring-1 ring-border transition group-hover:scale-110 ${t.icon} ${t.glow}`}
         >
           <Icon className="h-4 w-4" />
         </span>
       </div>
-      <p className="mt-4 text-3xl font-bold tracking-tight text-slate-900">{value}</p>
+      <p className="mt-4 text-3xl font-bold tracking-tight text-foreground">{value}</p>
     </div>
   );
 }
@@ -77,8 +77,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Dashboard</h1>
-        <p className="mt-1 text-sm text-slate-600">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           {user?.role === "Admin"
             ? "An overview of every task across your team."
             : "An overview of tasks assigned to you."}

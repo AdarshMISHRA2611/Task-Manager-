@@ -27,13 +27,13 @@ export default function Sidebar({
     clsx(
       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
       isActive
-        ? "bg-brand-50 text-brand-700 border-l-2 border-brand-600"
-        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
+        ? "bg-brand-subtle text-brand-subtle-foreground border-l-2 border-brand"
+        : "text-muted-foreground hover:bg-surface-muted hover:text-foreground border-l-2 border-transparent"
     );
 
   const nav = (
     <nav className="space-y-1 p-3">
-      <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">Navigate</p>
+      <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Navigate</p>
       {visible.map(({ to, label, icon: Icon }) => (
         <NavLink key={to} to={to} className={linkClass} onClick={() => onCloseMobile?.()}>
           <Icon className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
@@ -45,7 +45,7 @@ export default function Sidebar({
 
   return (
     <>
-      <aside className="hidden w-56 shrink-0 border-r border-slate-200 bg-white md:block">{nav}</aside>
+      <aside className="hidden w-56 shrink-0 border-r border-border bg-surface md:block">{nav}</aside>
 
       <div
         className={clsx(
@@ -57,15 +57,15 @@ export default function Sidebar({
       />
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-slate-200 bg-white shadow-2xl transition-transform duration-200 md:hidden",
+          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-border bg-surface shadow-2xl transition-transform duration-200 md:hidden",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex items-center justify-between border-b border-slate-200 px-3 py-3">
-          <span className="text-sm font-semibold text-slate-900">Navigate</span>
+        <div className="flex items-center justify-between border-b border-border px-3 py-3">
+          <span className="text-sm font-semibold text-foreground">Navigate</span>
           <button
             type="button"
-            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus-ring"
+            className="rounded-lg p-2 text-muted-foreground hover:bg-surface-muted hover:text-foreground focus-ring"
             aria-label="Close menu"
             onClick={() => onCloseMobile?.()}
           >

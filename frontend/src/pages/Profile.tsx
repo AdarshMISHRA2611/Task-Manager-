@@ -130,19 +130,19 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Profile</h1>
-        <p className="mt-1 text-sm text-slate-600">Manage your account details and password.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Profile</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Manage your account details and password.</p>
       </header>
 
       <Card>
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-100 text-xl font-semibold text-brand-700 ring-1 ring-brand-200 shadow-glow">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-subtle text-xl font-semibold text-brand-subtle-foreground ring-1 ring-brand-subtle-border shadow-glow">
             {initials(user.name)}
           </div>
           <div className="min-w-0">
-            <p className="text-lg font-semibold text-slate-900">{user.name}</p>
-            <p className="truncate text-sm text-slate-500">{user.email}</p>
-            <div className="mt-1 inline-flex items-center gap-1 rounded-md bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 ring-1 ring-brand-200">
+            <p className="text-lg font-semibold text-foreground">{user.name}</p>
+            <p className="truncate text-sm text-muted-foreground">{user.email}</p>
+            <div className="mt-1 inline-flex items-center gap-1 rounded-md bg-brand-subtle px-2 py-0.5 text-xs font-medium text-brand-subtle-foreground ring-1 ring-brand-subtle-border">
               <ShieldCheck className="h-3.5 w-3.5" aria-hidden /> {user.role}
             </div>
           </div>
@@ -151,16 +151,16 @@ export default function ProfilePage() {
 
       <Card>
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-slate-900">Account</h2>
-          <p className="text-xs text-slate-500">Update your name and email address.</p>
+          <h2 className="text-sm font-semibold text-foreground">Account</h2>
+          <p className="text-xs text-muted-foreground">Update your name and email address.</p>
         </div>
         <form noValidate onSubmit={onSaveProfile} className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Name
             </label>
             <div className="relative mt-1">
-              <PersonIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
+              <PersonIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" aria-hidden />
               <input
                 value={name}
                 onChange={(e) => {
@@ -168,21 +168,21 @@ export default function ProfilePage() {
                   if (profileErrors.name)
                     setProfileErrors((p) => ({ ...p, name: undefined }));
                 }}
-                className={`w-full rounded-lg border bg-white pl-9 pr-3 py-2 text-sm text-slate-900 hover:border-slate-400 focus-ring ${
-                  profileErrors.name ? "border-rose-400" : "border-slate-300"
+                className={`w-full rounded-lg border bg-surface pl-9 pr-3 py-2 text-sm text-foreground hover:border-border-strong focus-ring ${
+                  profileErrors.name ? "border-destructive" : "border-border-strong"
                 }`}
               />
             </div>
             {profileErrors.name && (
-              <p className="mt-1 text-xs text-rose-600">! {profileErrors.name}</p>
+              <p className="mt-1 text-xs text-destructive">! {profileErrors.name}</p>
             )}
           </div>
           <div>
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Email
             </label>
             <div className="relative mt-1">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
+              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" aria-hidden />
               <input
                 type="email"
                 value={email}
@@ -191,13 +191,13 @@ export default function ProfilePage() {
                   if (profileErrors.email)
                     setProfileErrors((p) => ({ ...p, email: undefined }));
                 }}
-                className={`w-full rounded-lg border bg-white pl-9 pr-3 py-2 text-sm text-slate-900 hover:border-slate-400 focus-ring ${
-                  profileErrors.email ? "border-rose-400" : "border-slate-300"
+                className={`w-full rounded-lg border bg-surface pl-9 pr-3 py-2 text-sm text-foreground hover:border-border-strong focus-ring ${
+                  profileErrors.email ? "border-destructive" : "border-border-strong"
                 }`}
               />
             </div>
             {profileErrors.email && (
-              <p className="mt-1 text-xs text-rose-600">! {profileErrors.email}</p>
+              <p className="mt-1 text-xs text-destructive">! {profileErrors.email}</p>
             )}
           </div>
           <div className="sm:col-span-2 flex justify-end">
@@ -216,18 +216,18 @@ export default function ProfilePage() {
 
       <Card>
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-slate-900">Change password</h2>
-          <p className="text-xs text-slate-500">
+          <h2 className="text-sm font-semibold text-foreground">Change password</h2>
+          <p className="text-xs text-muted-foreground">
             Choose a strong, unique password for your account.
           </p>
         </div>
         <form noValidate onSubmit={onChangePassword} className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Current password
             </label>
             <div className="relative mt-1">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" aria-hidden />
               <input
                 type={showCurrent ? "text" : "password"}
                 value={currentPassword}
@@ -237,29 +237,29 @@ export default function ProfilePage() {
                     setPwErrors((p) => ({ ...p, current_password: undefined }));
                 }}
                 autoComplete="current-password"
-                className={`w-full rounded-lg border bg-white pl-9 pr-10 py-2 text-sm text-slate-900 hover:border-slate-400 focus-ring ${
-                  pwErrors.current_password ? "border-rose-400" : "border-slate-300"
+                className={`w-full rounded-lg border bg-surface pl-9 pr-10 py-2 text-sm text-foreground hover:border-border-strong focus-ring ${
+                  pwErrors.current_password ? "border-destructive" : "border-border-strong"
                 }`}
               />
               <button
                 type="button"
                 onClick={() => setShowCurrent((v) => !v)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 focus-ring"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-subtle hover:bg-surface-muted hover:text-foreground focus-ring"
                 aria-label={showCurrent ? "Hide password" : "Show password"}
               >
                 {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
             {pwErrors.current_password && (
-              <p className="mt-1 text-xs text-rose-600">! {pwErrors.current_password}</p>
+              <p className="mt-1 text-xs text-destructive">! {pwErrors.current_password}</p>
             )}
           </div>
           <div>
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               New password
             </label>
             <div className="relative mt-1">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" aria-hidden />
               <input
                 type={showNew ? "text" : "password"}
                 value={newPassword}
@@ -269,29 +269,29 @@ export default function ProfilePage() {
                     setPwErrors((p) => ({ ...p, new_password: undefined }));
                 }}
                 autoComplete="new-password"
-                className={`w-full rounded-lg border bg-white pl-9 pr-10 py-2 text-sm text-slate-900 hover:border-slate-400 focus-ring ${
-                  pwErrors.new_password ? "border-rose-400" : "border-slate-300"
+                className={`w-full rounded-lg border bg-surface pl-9 pr-10 py-2 text-sm text-foreground hover:border-border-strong focus-ring ${
+                  pwErrors.new_password ? "border-destructive" : "border-border-strong"
                 }`}
               />
               <button
                 type="button"
                 onClick={() => setShowNew((v) => !v)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 focus-ring"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-subtle hover:bg-surface-muted hover:text-foreground focus-ring"
                 aria-label={showNew ? "Hide password" : "Show password"}
               >
                 {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
             {pwErrors.new_password && (
-              <p className="mt-1 text-xs text-rose-600">! {pwErrors.new_password}</p>
+              <p className="mt-1 text-xs text-destructive">! {pwErrors.new_password}</p>
             )}
           </div>
           <div>
-            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Confirm new password
             </label>
             <div className="relative mt-1">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" aria-hidden />
               <input
                 type={showConfirm ? "text" : "password"}
                 value={confirmPassword}
@@ -301,21 +301,21 @@ export default function ProfilePage() {
                     setPwErrors((p) => ({ ...p, confirm: undefined }));
                 }}
                 autoComplete="new-password"
-                className={`w-full rounded-lg border bg-white pl-9 pr-10 py-2 text-sm text-slate-900 hover:border-slate-400 focus-ring ${
-                  pwErrors.confirm ? "border-rose-400" : "border-slate-300"
+                className={`w-full rounded-lg border bg-surface pl-9 pr-10 py-2 text-sm text-foreground hover:border-border-strong focus-ring ${
+                  pwErrors.confirm ? "border-destructive" : "border-border-strong"
                 }`}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm((v) => !v)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 focus-ring"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-subtle hover:bg-surface-muted hover:text-foreground focus-ring"
                 aria-label={showConfirm ? "Hide password" : "Show password"}
               >
                 {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
             {pwErrors.confirm && (
-              <p className="mt-1 text-xs text-rose-600">! {pwErrors.confirm}</p>
+              <p className="mt-1 text-xs text-destructive">! {pwErrors.confirm}</p>
             )}
           </div>
           <div className="sm:col-span-2 flex justify-end">
@@ -332,7 +332,7 @@ export default function ProfilePage() {
         </form>
       </Card>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-muted-foreground">
         Member since {formatJoined(user.created_at)}
       </p>
     </div>

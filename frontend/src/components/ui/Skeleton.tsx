@@ -4,7 +4,7 @@ export function Skeleton({ className }: { className?: string }) {
   return (
     <div
       className={clsx(
-        "animate-pulse rounded-md bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%]",
+        "animate-pulse rounded-md bg-gradient-to-r from-border via-surface-muted to-border bg-[length:200%_100%]",
         className
       )}
     />

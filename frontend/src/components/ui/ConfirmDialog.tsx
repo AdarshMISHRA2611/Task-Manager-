@@ -57,8 +57,8 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             <span
               className={
                 tone === "danger"
-                  ? "flex h-8 w-8 items-center justify-center rounded-full bg-rose-50 text-rose-600 ring-1 ring-rose-200"
-                  : "flex h-8 w-8 items-center justify-center rounded-full bg-brand-50 text-brand-600 ring-1 ring-brand-200"
+                  ? "flex h-8 w-8 items-center justify-center rounded-full bg-destructive-subtle text-destructive ring-1 ring-destructive-subtle-border"
+                  : "flex h-8 w-8 items-center justify-center rounded-full bg-brand-subtle text-brand ring-1 ring-brand-subtle-border"
               }
             >
               <Icon className="h-4 w-4" />
@@ -77,7 +77,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
           </>
         }
       >
-        <p className="text-sm leading-relaxed text-slate-700">
+        <p className="text-sm leading-relaxed text-foreground">
           {pending?.description ?? "Are you sure?"}
         </p>
       </Modal>

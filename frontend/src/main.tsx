@@ -15,7 +15,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Toaster
           position="top-right"
           toastOptions={{
-            className: "!bg-slate-900 !text-slate-100 !text-sm !shadow-panel !ring-1 !ring-slate-700",
+            className: "!bg-surface !text-foreground !text-sm !shadow-panel !ring-1 !ring-border",
             duration: 4000,
           }}
         />
