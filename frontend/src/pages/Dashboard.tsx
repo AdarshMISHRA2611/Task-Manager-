@@ -1,13 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import {
   AlertTriangle,
   CheckCircle2,
   Circle,
-  FolderPlus,
   ListChecks,
-  ListPlus,
-  Search,
   ShieldCheck,
   Timer,
   type LucideIcon,
@@ -16,7 +12,6 @@ import { useAuth } from "@/services/authContext";
 import { api } from "@/services/api";
 import { qk } from "@/services/queryClient";
 import type { Dashboard } from "@/services/types";
-import type { AppLayoutContext } from "@/components/AppLayout";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 type StatTone = "brand" | "slate" | "warning" | "success" | "destructive";
@@ -149,37 +144,8 @@ function StatCardSkeleton({ hero = false }: { hero?: boolean }) {
   );
 }
 
-interface QuickAction {
-  label: string;
-  icon: LucideIcon;
-  to?: string;
-  onClick?: () => void;
-}
-
-function QuickActionButton({ action }: { action: QuickAction }) {
-  const Icon = action.icon;
-  const className =
-    "flex items-center gap-2 rounded-lg border border-border-strong bg-surface px-3.5 py-2 text-sm font-medium text-foreground shadow-sm transition hover:bg-surface-muted hover:border-border-strong hover:-translate-y-0.5 hover:shadow focus-ring";
-  if (action.to) {
-    return (
-      <Link to={action.to} className={className}>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-        {action.label}
-      </Link>
-    );
-  }
-  return (
-    <button type="button" onClick={action.onClick} className={className}>
-      <Icon className="h-4 w-4 text-muted-foreground" />
-      {action.label}
-    </button>
-  );
-}
-
 export default function DashboardPage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const { openPalette } = useOutletContext<AppLayoutContext>();
   const { data, isLoading } = useQuery({
     queryKey: qk.dashboard,
     queryFn: async () => (await api.get<Dashboard>("/api/dashboard")).data,
@@ -188,17 +154,6 @@ export default function DashboardPage() {
   const isAdmin = user?.role === "Admin";
   const total = data?.total_tasks ?? 0;
   const share = (v: number) => (total > 0 ? (v / total) * 100 : 0);
-
-  const actions: QuickAction[] = isAdmin
-    ? [
-        { label: "New project", icon: FolderPlus, to: "/projects" },
-        { label: "New task", icon: ListPlus, to: "/tasks" },
-        { label: "Open command palette", icon: Search, onClick: openPalette },
-      ]
-    : [
-        { label: "Go to my tasks", icon: ListChecks, onClick: () => navigate("/tasks") },
-        { label: "Open command palette", icon: Search, onClick: openPalette },
-      ];
 
   return (
     <div className="space-y-7">
@@ -222,12 +177,6 @@ export default function DashboardPage() {
             <ShieldCheck className="h-3.5 w-3.5" /> {user.role}
           </span>
         )}
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {actions.map((a) => (
-          <QuickActionButton key={a.label} action={a} />
-        ))}
       </div>
 
       {isLoading || !data ? (
