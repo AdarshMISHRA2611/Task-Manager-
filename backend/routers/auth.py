@@ -18,20 +18,27 @@ from backend.utils.security import create_access_token, hash_password, verify_pa
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
+ADMIN_EMAIL_DOMAIN = "@ethara.ai"
+
+
 @router.post("/signup", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def signup(payload: UserSignup, db: Session = Depends(get_db)) -> UserOut:
     email = payload.email.lower().strip()
     if db.query(User).filter(User.email == email).first():
         raise HTTPException(status_code=400, detail="Email is already in use")
 
-    user_count = db.query(User).count()
-    role = UserRole.Admin if user_count == 0 else UserRole.Member
+    requested_role = payload.role or UserRole.Member
+    if requested_role == UserRole.Admin and not email.endswith(ADMIN_EMAIL_DOMAIN):
+        raise HTTPException(
+            status_code=403,
+            detail=f"Admin role is restricted to {ADMIN_EMAIL_DOMAIN} email addresses",
+        )
 
     user = User(
         name=payload.name.strip(),
         email=email,
         password=hash_password(payload.password),
-        role=role.value,
+        role=requested_role.value,
     )
     db.add(user)
     db.commit()
@@ -45,6 +52,11 @@ def login(payload: UserLogin, db: Session = Depends(get_db)) -> Token:
     user = db.query(User).filter(User.email == email).first()
     if not user or not verify_password(payload.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid email or password")
+    if payload.role is not None and user.role != payload.role.value:
+        raise HTTPException(
+            status_code=401,
+            detail=f"This account is signed up as {user.role}. Please choose the correct option.",
+        )
     token = create_access_token(subject=str(user.id))
     return Token(access_token=token)
 

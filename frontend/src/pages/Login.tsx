@@ -6,8 +6,11 @@ import { ClipboardCheck, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useAuth } from "@/services/authContext";
 import { getErrorMessage } from "@/services/api";
 import { Button } from "@/components/ui/Button";
+import type { UserRole } from "@/services/types";
 
 type Errors = { email?: string; password?: string };
+
+const ROLES: UserRole[] = ["Member", "Admin"];
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -15,6 +18,7 @@ export default function LoginPage() {
   const location = useLocation() as { state?: { from?: { pathname: string } } };
   const redirectTo = location.state?.from?.pathname || "/dashboard";
 
+  const [role, setRole] = useState<UserRole>("Member");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -22,7 +26,7 @@ export default function LoginPage() {
 
   const mutation = useMutation({
     mutationFn: async () => {
-      await login(email.trim(), password);
+      await login(email.trim(), password, role);
     },
     onSuccess: () => {
       toast.success("Welcome back");
@@ -64,6 +68,34 @@ export default function LoginPage() {
           noValidate
           className="space-y-5 rounded-2xl bg-surface p-6 shadow-xl ring-1 ring-border"
         >
+          <div>
+            <div
+              role="radiogroup"
+              aria-label="Account role"
+              className="flex w-full gap-1 rounded-lg border border-border-strong bg-surface-muted p-1"
+            >
+              {ROLES.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  role="radio"
+                  aria-checked={role === r}
+                  onClick={() => setRole(r)}
+                  className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition focus-ring ${
+                    role === r
+                      ? "bg-brand text-brand-foreground shadow-sm"
+                      : "text-foreground hover:bg-surface"
+                  }`}
+                >
+                  Sign in as {r}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1.5 text-[11px] text-muted-foreground">
+              We&apos;ll verify your role matches this account.
+            </p>
+          </div>
+
           <div>
             <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Email

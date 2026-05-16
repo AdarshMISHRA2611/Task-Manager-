@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { api, getErrorMessage } from "./api";
 import { queryClient } from "./queryClient";
-import type { User } from "./types";
+import type { User, UserRole } from "./types";
 
 interface AuthState {
   user: User | null;
@@ -11,8 +11,8 @@ interface AuthState {
 
 interface AuthContextValue extends AuthState {
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, role?: UserRole) => Promise<void>;
+  signup: (name: string, email: string, password: string, role?: UserRole) => Promise<void>;
   logout: () => void;
   refreshMe: () => Promise<void>;
 }
@@ -63,9 +63,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refreshMe]);
 
   const login = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string, role?: UserRole) => {
       setError(null);
-      const { data } = await api.post<{ access_token: string }>("/api/auth/login", { email, password });
+      const body: Record<string, unknown> = { email, password };
+      if (role) body.role = role;
+      const { data } = await api.post<{ access_token: string }>("/api/auth/login", body);
       localStorage.setItem("token", data.access_token);
       setLoading(true);
       await refreshMe();
@@ -74,9 +76,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const signup = useCallback(
-    async (name: string, email: string, password: string) => {
+    async (name: string, email: string, password: string, role?: UserRole) => {
       setError(null);
-      await api.post<User>("/api/auth/signup", { name, email, password });
+      const signupBody: Record<string, unknown> = { name, email, password };
+      if (role) signupBody.role = role;
+      await api.post<User>("/api/auth/signup", signupBody);
       const { data } = await api.post<{ access_token: string }>("/api/auth/login", { email, password });
       localStorage.setItem("token", data.access_token);
       setLoading(true);

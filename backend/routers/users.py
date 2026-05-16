@@ -37,6 +37,12 @@ def update_role(
     if target.role == new_role:
         return UserOut.model_validate(target)
 
+    if new_role == UserRole.Admin.value and not target.email.lower().endswith("@ethara.ai"):
+        raise HTTPException(
+            status_code=403,
+            detail="Admin role is restricted to @ethara.ai email addresses",
+        )
+
     if target.role == UserRole.Admin.value and new_role == UserRole.Member.value:
         admin_count = db.query(User).filter(User.role == UserRole.Admin.value).count()
         if admin_count <= 1:

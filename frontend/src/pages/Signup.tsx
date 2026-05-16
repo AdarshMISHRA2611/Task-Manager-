@@ -2,12 +2,16 @@ import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { ClipboardCheck, Eye, EyeOff, Lock, Mail, User as UserIcon } from "lucide-react";
+import { ClipboardCheck, Eye, EyeOff, Lock, Mail, ShieldCheck, User as UserIcon } from "lucide-react";
 import { useAuth } from "@/services/authContext";
 import { getErrorMessage } from "@/services/api";
 import { Button } from "@/components/ui/Button";
+import type { UserRole } from "@/services/types";
 
 type Errors = { name?: string; email?: string; password?: string };
+
+const ROLES: UserRole[] = ["Member", "Admin"];
+const ADMIN_EMAIL_DOMAIN = "@ethara.ai";
 
 function strengthOf(pw: string): { score: 0 | 1 | 2 | 3 | 4 | 5; label: string } {
   let score = 0;
@@ -33,6 +37,7 @@ export default function SignupPage() {
   const { signup } = useAuth();
   const navigate = useNavigate();
 
+  const [role, setRole] = useState<UserRole>("Member");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,10 +45,13 @@ export default function SignupPage() {
   const [errors, setErrors] = useState<Errors>({});
 
   const pwStrength = useMemo(() => strengthOf(password), [password]);
+  const trimmedEmail = email.trim().toLowerCase();
+  const adminEmailValid = trimmedEmail.endsWith(ADMIN_EMAIL_DOMAIN);
+  const showAdminWarning = role === "Admin" && trimmedEmail.length > 0 && !adminEmailValid;
 
   const mutation = useMutation({
     mutationFn: async () => {
-      await signup(name.trim(), email.trim(), password);
+      await signup(name.trim(), email.trim(), password, role);
     },
     onSuccess: () => {
       toast.success("Account created. Welcome aboard.");
@@ -57,6 +65,9 @@ export default function SignupPage() {
     if (!name.trim()) next.name = "Name is required";
     if (!email.trim()) next.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) next.email = "Enter a valid email address";
+    else if (role === "Admin" && !email.trim().toLowerCase().endsWith(ADMIN_EMAIL_DOMAIN)) {
+      next.email = `Admin signup requires an ${ADMIN_EMAIL_DOMAIN} email address`;
+    }
     if (!password) next.password = "Password is required";
     else if (password.length < 8) next.password = "Use at least 8 characters";
     setErrors(next);
@@ -85,6 +96,39 @@ export default function SignupPage() {
           noValidate
           className="space-y-5 rounded-2xl bg-surface p-6 shadow-xl ring-1 ring-border"
         >
+          <div>
+            <div
+              role="radiogroup"
+              aria-label="Account role"
+              className="flex w-full gap-1 rounded-lg border border-border-strong bg-surface-muted p-1"
+            >
+              {ROLES.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  role="radio"
+                  aria-checked={role === r}
+                  onClick={() => {
+                    setRole(r);
+                    if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
+                  }}
+                  className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition focus-ring ${
+                    role === r
+                      ? "bg-brand text-brand-foreground shadow-sm"
+                      : "text-foreground hover:bg-surface"
+                  }`}
+                >
+                  Sign up as {r}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1.5 text-[11px] text-muted-foreground">
+              {role === "Admin"
+                ? `Admin signup requires an ${ADMIN_EMAIL_DOMAIN} email address.`
+                : "Members can be promoted to Admin later by an existing Admin."}
+            </p>
+          </div>
+
           <div>
             <label htmlFor="name" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Name
@@ -124,13 +168,19 @@ export default function SignupPage() {
                   setEmail(e.target.value);
                   if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
                 }}
-                placeholder="you@example.com"
+                placeholder={role === "Admin" ? `you${ADMIN_EMAIL_DOMAIN}` : "you@example.com"}
                 className={`w-full rounded-lg border ${
-                  errors.email ? "border-destructive" : "border-border-strong"
+                  errors.email || showAdminWarning ? "border-destructive" : "border-border-strong"
                 } bg-surface py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-subtle transition hover:border-border-strong focus-ring`}
               />
             </div>
             {errors.email && <p className="mt-1.5 text-xs text-destructive">! {errors.email}</p>}
+            {!errors.email && showAdminWarning && (
+              <p className="mt-1.5 flex items-center gap-1 text-xs text-destructive">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Admin role is restricted to {ADMIN_EMAIL_DOMAIN} email addresses.
+              </p>
+            )}
           </div>
 
           <div>
@@ -180,11 +230,6 @@ export default function SignupPage() {
                 <span className="font-medium text-foreground">{pwStrength.label || "—"}</span>
               </p>
             </div>
-          </div>
-
-          <div className="rounded-lg border border-border bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
-            You'll join as a <span className="font-semibold text-brand-subtle-foreground">Member</span>. The very first user becomes the
-            Admin automatically.
           </div>
 
           <Button type="submit" className="w-full" disabled={mutation.isPending}>
