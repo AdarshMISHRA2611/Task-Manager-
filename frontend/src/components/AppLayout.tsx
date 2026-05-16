@@ -4,6 +4,10 @@ import CommandPalette from "./CommandPalette";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 
+export interface AppLayoutContext {
+  openPalette: () => void;
+}
+
 export default function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -24,13 +28,13 @@ export default function AppLayout() {
   }, []);
 
   return (
-    <div className="surface-grid flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <Navbar onOpenMobile={() => setMobileOpen(true)} onOpenPalette={openPalette} />
       <div className="mx-auto flex w-full max-w-7xl flex-1">
         <Sidebar mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
         <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8">
           <div className="animate-fade-in">
-            <Outlet />
+            <Outlet context={{ openPalette } satisfies AppLayoutContext} />
           </div>
         </main>
       </div>

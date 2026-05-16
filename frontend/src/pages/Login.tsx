@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { ClipboardCheck, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { ClipboardCheck, Eye, EyeOff, Lock, Mail, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/services/authContext";
 import { getErrorMessage } from "@/services/api";
 import { Button } from "@/components/ui/Button";
@@ -11,6 +11,7 @@ import type { UserRole } from "@/services/types";
 type Errors = { email?: string; password?: string };
 
 const ROLES: UserRole[] = ["Member", "Admin"];
+const ADMIN_EMAIL_DOMAIN = "@ethara.ai";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -23,6 +24,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
+
+  const trimmedEmail = email.trim().toLowerCase();
+  const adminEmailValid = trimmedEmail.endsWith(ADMIN_EMAIL_DOMAIN);
+  const showAdminWarning = role === "Admin" && trimmedEmail.length > 0 && !adminEmailValid;
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -39,6 +44,9 @@ export default function LoginPage() {
     const next: Errors = {};
     if (!email.trim()) next.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) next.email = "Enter a valid email address";
+    else if (role === "Admin" && !email.trim().toLowerCase().endsWith(ADMIN_EMAIL_DOMAIN)) {
+      next.email = `Admin sign-in requires an ${ADMIN_EMAIL_DOMAIN} email address`;
+    }
     if (!password) next.password = "Password is required";
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -80,7 +88,10 @@ export default function LoginPage() {
                   type="button"
                   role="radio"
                   aria-checked={role === r}
-                  onClick={() => setRole(r)}
+                  onClick={() => {
+                    setRole(r);
+                    if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
+                  }}
                   className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition focus-ring ${
                     role === r
                       ? "bg-brand text-brand-foreground shadow-sm"
@@ -92,7 +103,9 @@ export default function LoginPage() {
               ))}
             </div>
             <p className="mt-1.5 text-[11px] text-muted-foreground">
-              We&apos;ll verify your role matches this account.
+              {role === "Admin"
+                ? `Admin access is limited to ${ADMIN_EMAIL_DOMAIN} email addresses.`
+                : "We'll verify your role matches this account."}
             </p>
           </div>
 
@@ -111,13 +124,19 @@ export default function LoginPage() {
                   setEmail(e.target.value);
                   if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
                 }}
-                placeholder="you@example.com"
+                placeholder={role === "Admin" ? `you${ADMIN_EMAIL_DOMAIN}` : "you@example.com"}
                 className={`w-full rounded-lg border ${
-                  errors.email ? "border-destructive" : "border-border-strong"
+                  errors.email || showAdminWarning ? "border-destructive" : "border-border-strong"
                 } bg-surface py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-subtle transition hover:border-border-strong focus-ring`}
               />
             </div>
             {errors.email && <p className="mt-1.5 text-xs text-destructive">! {errors.email}</p>}
+            {!errors.email && showAdminWarning && (
+              <p className="mt-1.5 flex items-center gap-1 text-xs text-destructive">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Admin access is limited to {ADMIN_EMAIL_DOMAIN} email addresses.
+              </p>
+            )}
           </div>
 
           <div>

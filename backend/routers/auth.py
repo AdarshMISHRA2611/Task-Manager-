@@ -52,6 +52,11 @@ def login(payload: UserLogin, db: Session = Depends(get_db)) -> Token:
     user = db.query(User).filter(User.email == email).first()
     if not user or not verify_password(payload.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid email or password")
+    if payload.role is not None and payload.role == UserRole.Admin and not email.endswith(ADMIN_EMAIL_DOMAIN):
+        raise HTTPException(
+            status_code=403,
+            detail=f"Admin sign-in requires an {ADMIN_EMAIL_DOMAIN} email address",
+        )
     if payload.role is not None and user.role != payload.role.value:
         raise HTTPException(
             status_code=401,
