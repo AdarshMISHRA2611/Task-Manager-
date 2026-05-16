@@ -81,65 +81,53 @@ function StatCard({
   icon: Icon,
   tone,
   share,
-  hero = false,
 }: {
   label: string;
   value: number;
   icon: LucideIcon;
   tone: StatTone;
-  share?: number;
-  hero?: boolean;
+  share: number;
 }) {
   const t = TONE_CLASSES[tone];
-  const pct = share === undefined ? null : Math.max(0, Math.min(100, share));
+  const pct = Math.max(0, Math.min(100, share));
 
   return (
     <div
-      className={`group relative rounded-2xl border border-border bg-surface p-5 shadow-sm ring-1 ring-transparent transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${t.cardRing}`}
+      className={`group relative rounded-2xl border border-border bg-surface p-4 shadow-sm ring-1 ring-transparent transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${t.cardRing}`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           {label}
         </p>
         <span
-          className={`flex h-10 w-10 items-center justify-center rounded-xl ring-1 transition group-hover:scale-110 ${t.iconBg} ${t.iconRing} ${t.glow}`}
+          className={`flex h-9 w-9 items-center justify-center rounded-xl ring-1 transition group-hover:scale-110 ${t.iconBg} ${t.iconRing} ${t.glow}`}
         >
-          <Icon className="h-5 w-5" />
+          <Icon className="h-4 w-4" />
         </span>
       </div>
-      <p
-        className={`mt-4 font-bold tracking-tight text-foreground ${
-          hero ? "text-5xl sm:text-6xl" : "text-4xl"
-        }`}
-      >
-        {value}
-      </p>
-      {pct !== null && (
-        <div className="mt-4">
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
-            <div
-              className={`h-full rounded-full transition-all duration-500 ${t.barFrom}`}
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-          <p className="mt-1.5 text-[11px] text-muted-foreground">
-            {pct.toFixed(0)}% of total
-          </p>
+      <p className="mt-3 text-3xl font-bold tracking-tight text-foreground">{value}</p>
+      <div className="mt-3">
+        <div className="h-1 w-full overflow-hidden rounded-full bg-border">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${t.barFrom}`}
+            style={{ width: `${pct}%` }}
+          />
         </div>
-      )}
+        <p className="mt-1 text-[10px] text-muted-foreground">{pct.toFixed(0)}% of total</p>
+      </div>
     </div>
   );
 }
 
-function StatCardSkeleton({ hero = false }: { hero?: boolean }) {
+function StatCardSkeleton() {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <Skeleton className="h-3 w-24" />
-        <Skeleton className="h-10 w-10 rounded-xl" />
+    <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-2">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-9 w-9 rounded-xl" />
       </div>
-      <Skeleton className={`mt-4 ${hero ? "h-14 w-32" : "h-10 w-20"}`} />
-      <Skeleton className="mt-4 h-1.5 w-full rounded-full" />
+      <Skeleton className="mt-3 h-8 w-16" />
+      <Skeleton className="mt-3 h-1 w-full rounded-full" />
     </div>
   );
 }
@@ -156,7 +144,7 @@ export default function DashboardPage() {
   const share = (v: number) => (total > 0 ? (v / total) * 100 : 0);
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -180,54 +168,50 @@ export default function DashboardPage() {
       </div>
 
       {isLoading || !data ? (
-        <div className="space-y-4">
-          <StatCardSkeleton hero />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <StatCardSkeleton />
-            <StatCardSkeleton />
-            <StatCardSkeleton />
-            <StatCardSkeleton />
-          </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           <StatCard
-            label="Total Tasks"
+            label="Total"
             value={data.total_tasks}
             icon={ListChecks}
             tone="brand"
-            hero
+            share={100}
           />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <StatCard
-              label="Todo"
-              value={data.todo_tasks}
-              icon={Circle}
-              tone="slate"
-              share={share(data.todo_tasks)}
-            />
-            <StatCard
-              label="In Progress"
-              value={data.in_progress_tasks}
-              icon={Timer}
-              tone="warning"
-              share={share(data.in_progress_tasks)}
-            />
-            <StatCard
-              label="Completed"
-              value={data.completed_tasks}
-              icon={CheckCircle2}
-              tone="success"
-              share={share(data.completed_tasks)}
-            />
-            <StatCard
-              label="Overdue"
-              value={data.overdue_tasks}
-              icon={AlertTriangle}
-              tone="destructive"
-              share={share(data.overdue_tasks)}
-            />
-          </div>
+          <StatCard
+            label="Todo"
+            value={data.todo_tasks}
+            icon={Circle}
+            tone="slate"
+            share={share(data.todo_tasks)}
+          />
+          <StatCard
+            label="In Progress"
+            value={data.in_progress_tasks}
+            icon={Timer}
+            tone="warning"
+            share={share(data.in_progress_tasks)}
+          />
+          <StatCard
+            label="Completed"
+            value={data.completed_tasks}
+            icon={CheckCircle2}
+            tone="success"
+            share={share(data.completed_tasks)}
+          />
+          <StatCard
+            label="Overdue"
+            value={data.overdue_tasks}
+            icon={AlertTriangle}
+            tone="destructive"
+            share={share(data.overdue_tasks)}
+          />
         </div>
       )}
     </div>

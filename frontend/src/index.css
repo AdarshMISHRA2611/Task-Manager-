@@ -187,6 +187,72 @@
       linear-gradient(rgb(var(--foreground) / 0.05) 1px, transparent 1px),
       linear-gradient(90deg, rgb(var(--foreground) / 0.05) 1px, transparent 1px);
   }
+
+  .surface-aurora {
+    position: relative;
+    overflow: hidden;
+    background-color: rgb(var(--background));
+    isolation: isolate;
+  }
+  .surface-aurora::before,
+  .surface-aurora::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    border-radius: 9999px;
+    filter: blur(90px);
+    pointer-events: none;
+    opacity: 0.6;
+    will-change: transform;
+  }
+  .surface-aurora::before {
+    width: 55vmax;
+    height: 55vmax;
+    top: -20vmax;
+    left: -15vmax;
+    background-color: rgb(var(--brand) / 0.5);
+    animation: aurora-a 22s ease-in-out infinite alternate;
+  }
+  .surface-aurora::after {
+    width: 50vmax;
+    height: 50vmax;
+    bottom: -20vmax;
+    right: -15vmax;
+    background-color: rgb(var(--accent) / 0.4);
+    animation: aurora-b 26s ease-in-out infinite alternate;
+  }
+  .dark .surface-aurora::before {
+    background-color: rgb(var(--brand) / 0.32);
+  }
+  .dark .surface-aurora::after {
+    background-color: rgb(var(--accent) / 0.24);
+  }
+  .surface-aurora > * {
+    position: relative;
+    z-index: 1;
+  }
+  @keyframes aurora-a {
+    0% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    100% {
+      transform: translate3d(10vw, 8vw, 0) scale(1.1);
+    }
+  }
+  @keyframes aurora-b {
+    0% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    100% {
+      transform: translate3d(-8vw, -6vw, 0) scale(1.12);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .surface-aurora::before,
+    .surface-aurora::after {
+      animation: none;
+    }
+  }
 }
 
 ::-webkit-scrollbar {
