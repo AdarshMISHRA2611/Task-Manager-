@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 type Errors = { name?: string; description?: string };
 
@@ -63,16 +64,15 @@ export default function ProjectsPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Projects</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {isAdmin
-              ? "Every project in the workspace."
-              : "Projects you have been added to."}
-          </p>
-        </div>
-      </header>
+      <PageHeader
+        icon={FolderKanban}
+        title="Projects"
+        description={
+          isAdmin
+            ? "Every project in the workspace."
+            : "Projects you have been added to."
+        }
+      />
 
       {isAdmin && (
         <Card>
@@ -124,7 +124,7 @@ export default function ProjectsPage() {
               >
                 {createMutation.isPending ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Creating…
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Creating...
                   </>
                 ) : (
                   <>
@@ -173,8 +173,12 @@ export default function ProjectsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {projects.map((p) => (
-                  <tr key={p.id} className="transition hover:bg-surface-muted">
+                {projects.map((p, i) => (
+                  <tr
+                    key={p.id}
+                    className="group animate-fade-in border-l-2 border-transparent transition hover:border-brand hover:bg-surface-muted"
+                    style={{ animationDelay: `${i * 30}ms` }}
+                  >
                     <td className="px-5 py-3 align-top">
                       <Link
                         to={`/projects/${p.id}`}

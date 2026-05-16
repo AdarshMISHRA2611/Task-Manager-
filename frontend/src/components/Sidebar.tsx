@@ -25,7 +25,7 @@ export default function Sidebar({
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     clsx(
-      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
+      "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
       isActive
         ? "bg-brand-subtle text-brand-subtle-foreground border-l-2 border-brand"
         : "text-muted-foreground hover:bg-surface-muted hover:text-foreground border-l-2 border-transparent"
@@ -36,8 +36,15 @@ export default function Sidebar({
       <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Navigate</p>
       {visible.map(({ to, label, icon: Icon }) => (
         <NavLink key={to} to={to} className={linkClass} onClick={() => onCloseMobile?.()}>
-          <Icon className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
-          {label}
+          {({ isActive }) => (
+            <>
+              <Icon className={clsx("h-4 w-4 shrink-0 transition", isActive ? "opacity-100" : "opacity-80")} aria-hidden />
+              <span className="flex-1">{label}</span>
+              {isActive && (
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand shadow-[0_0_8px_rgb(var(--brand)/0.6)]" aria-hidden />
+              )}
+            </>
+          )}
         </NavLink>
       ))}
     </nav>

@@ -30,6 +30,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Select } from "@/components/ui/Select";
 import { DateTimePicker } from "@/components/ui/DateTimePicker";
@@ -388,7 +389,7 @@ export default function TasksPage() {
     updateStatusMutation.mutate({ taskId: id, status });
   };
 
-  const renderTaskCard = (t: Task) => {
+  const renderTaskCard = (t: Task, i: number) => {
     const project = projectsById.get(t.project_id);
     const canChange = isAdmin || t.assigned_to === user?.id;
     const isDragging = draggingTaskId === t.id;
@@ -398,7 +399,8 @@ export default function TasksPage() {
         draggable={canChange}
         onDragStart={(e) => canChange && handleDragStart(e, t.id)}
         onDragEnd={handleDragEnd}
-        className={`group rounded-xl border border-border bg-surface p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+        style={{ animationDelay: `${i * 30}ms` }}
+        className={`group animate-fade-in rounded-xl border border-border bg-surface p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
           canChange ? "cursor-grab active:cursor-grabbing" : "cursor-default"
         } ${isDragging ? "opacity-50" : ""}`}
       >
@@ -458,14 +460,11 @@ export default function TasksPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Tasks</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {isAdmin ? "Every task across the workspace." : "Tasks assigned to you."}
-          </p>
-        </div>
-      </header>
+      <PageHeader
+        icon={ListChecks}
+        title="Tasks"
+        description={isAdmin ? "Every task across the workspace." : "Tasks assigned to you."}
+      />
 
       {isAdmin && (
         <Card>
@@ -571,7 +570,7 @@ export default function TasksPage() {
               <Button type="submit" disabled={createMutation.isPending}>
                 {createMutation.isPending ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Creating…
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Creating...
                   </>
                 ) : (
                   <>
@@ -767,12 +766,16 @@ export default function TasksPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filteredTasks.map((t) => {
+                {filteredTasks.map((t, i) => {
                   const project = projectsById.get(t.project_id);
                   const canChangeStatus =
                     isAdmin || (user?.id !== undefined && t.assigned_to === user.id);
                   return (
-                    <tr key={t.id} className="transition hover:bg-surface-muted">
+                    <tr
+                      key={t.id}
+                      className="animate-fade-in border-l-2 border-transparent transition hover:border-brand hover:bg-surface-muted"
+                      style={{ animationDelay: `${i * 30}ms` }}
+                    >
                       <td className="px-5 py-3 align-top">
                         <p className="font-medium text-foreground">{t.title}</p>
                         {t.description && (
@@ -855,7 +858,7 @@ export default function TasksPage() {
             <Button onClick={onSaveEdit} disabled={editMutation.isPending}>
               {editMutation.isPending ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Saving…
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Saving...
                 </>
               ) : (
                 "Save changes"

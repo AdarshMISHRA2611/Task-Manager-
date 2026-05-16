@@ -6,23 +6,13 @@ import { api, getErrorMessage } from "@/services/api";
 import { qk } from "@/services/queryClient";
 import type { User, UserRole } from "@/services/types";
 import { useAuth } from "@/services/authContext";
+import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
-
-function initials(name: string) {
-  return (
-    name
-      .split(" ")
-      .map((s) => s[0])
-      .filter(Boolean)
-      .slice(0, 2)
-      .join("")
-      .toUpperCase() || "?"
-  );
-}
 
 type RoleFilter = "all" | UserRole;
 
@@ -91,14 +81,11 @@ export default function TeamPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Team</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {adminCount} {adminCount === 1 ? "admin" : "admins"} • {users.length} total
-          </p>
-        </div>
-      </header>
+      <PageHeader
+        icon={Users}
+        title="Team"
+        description={`${adminCount} ${adminCount === 1 ? "admin" : "admins"}, ${users.length} total`}
+      />
 
       <Card>
         <div className="flex flex-wrap items-end gap-3">
@@ -144,24 +131,27 @@ export default function TeamPage() {
           <div className="p-5">
             <EmptyState
               icon={Users}
-              title="No matches"
-              description="Try adjusting your search or role filter."
+              title={users.length === 0 ? "No teammates yet" : "No matches"}
+              description={
+                users.length === 0
+                  ? "Invite people from the projects you manage to grow your team."
+                  : "Try clearing the search or switching the role filter."
+              }
             />
           </div>
         ) : (
           <ul className="divide-y divide-border">
-            {filteredUsers.map((u) => {
+            {filteredUsers.map((u, i) => {
               const isSelf = u.id === user?.id;
               const isLastAdmin = u.role === "Admin" && adminCount <= 1;
               return (
                 <li
                   key={u.id}
-                  className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
+                  className="flex animate-fade-in flex-wrap items-center justify-between gap-3 border-l-2 border-transparent px-5 py-3 transition hover:border-brand hover:bg-surface-muted"
+                  style={{ animationDelay: `${i * 30}ms` }}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-subtle text-sm font-semibold text-brand-subtle-foreground ring-1 ring-brand-subtle-border">
-                      {initials(u.name)}
-                    </div>
+                    <Avatar name={u.name} size="md" />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-foreground">
                         {u.name}

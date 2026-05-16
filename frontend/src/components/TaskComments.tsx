@@ -5,6 +5,7 @@ import { MessageSquare, Send, Trash2 } from "lucide-react";
 import { api, getErrorMessage } from "@/services/api";
 import { qk } from "@/services/queryClient";
 import { useAuth } from "@/services/authContext";
+import { Avatar } from "@/components/ui/Avatar";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { Comment } from "@/services/types";
@@ -21,13 +22,6 @@ function formatRelative(iso: string): string {
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-}
-
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0]!.charAt(0).toUpperCase();
-  return (parts[0]!.charAt(0) + parts[parts.length - 1]!.charAt(0)).toUpperCase();
 }
 
 export default function TaskComments({ taskId }: Props) {
@@ -109,14 +103,16 @@ export default function TaskComments({ taskId }: Props) {
             No comments yet. Start the discussion below.
           </p>
         )}
-        {comments.map((c) => {
+        {comments.map((c, i) => {
           const own = c.user_id === user?.id;
           const canDelete = (own || isAdmin) && c.deleted_at === null;
           return (
-            <div key={c.id} className="flex gap-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-subtle text-[10px] font-bold text-brand-subtle-foreground ring-1 ring-brand-subtle-border">
-                {initials(c.user_name)}
-              </span>
+            <div
+              key={c.id}
+              className="flex animate-fade-in gap-3"
+              style={{ animationDelay: `${i * 30}ms` }}
+            >
+              <Avatar name={c.user_name} size="sm" />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-foreground">{c.user_name}</span>
@@ -167,7 +163,7 @@ export default function TaskComments({ taskId }: Props) {
         <div className="flex items-center justify-between gap-2 pt-1">
           <span className="text-[10px] text-muted-foreground">
             <kbd className="rounded border border-border bg-surface-muted px-1 py-0.5">Enter</kbd>{" "}
-            send ·{" "}
+            send,{" "}
             <kbd className="rounded border border-border bg-surface-muted px-1 py-0.5">
               Shift+Enter
             </kbd>{" "}

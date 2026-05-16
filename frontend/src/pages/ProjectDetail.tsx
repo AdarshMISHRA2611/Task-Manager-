@@ -27,6 +27,7 @@ import type {
 } from "@/services/types";
 import { TASK_STATUS_OPTIONS } from "@/services/types";
 import { useAuth } from "@/services/authContext";
+import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -501,7 +502,7 @@ export default function ProjectDetailPage() {
               <Button type="submit" disabled={saveProjectMutation.isPending}>
                 {saveProjectMutation.isPending ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Saving…
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Saving...
                   </>
                 ) : (
                   "Save changes"
@@ -576,21 +577,14 @@ export default function ProjectDetailPage() {
           />
         ) : (
           <ul className="divide-y divide-border rounded-xl border border-border bg-surface">
-            {members.map((m) => (
+            {members.map((m, i) => (
               <li
                 key={m.membership_id}
-                className="flex flex-wrap items-center justify-between gap-3 px-3 py-2"
+                className="flex animate-fade-in flex-wrap items-center justify-between gap-3 border-l-2 border-transparent px-3 py-2 transition hover:border-brand hover:bg-surface-muted"
+                style={{ animationDelay: `${i * 30}ms` }}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-subtle text-sm font-semibold text-brand-subtle-foreground ring-1 ring-brand-subtle-border">
-                    {m.name
-                      .split(" ")
-                      .map((s) => s[0])
-                      .filter(Boolean)
-                      .slice(0, 2)
-                      .join("")
-                      .toUpperCase() || "?"}
-                  </div>
+                  <Avatar name={m.name} size="md" />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-foreground">{m.name}</p>
                     <p className="truncate text-xs text-muted-foreground">{m.email}</p>
@@ -765,12 +759,16 @@ export default function ProjectDetailPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {projectTasks.map((t) => {
+                {projectTasks.map((t, i) => {
                   const assignee = members.find((m) => m.user_id === t.assigned_to);
                   const canChangeStatus =
                     isAdmin || (user?.id !== undefined && t.assigned_to === user.id);
                   return (
-                    <tr key={t.id} className="transition hover:bg-surface-muted">
+                    <tr
+                      key={t.id}
+                      className="animate-fade-in border-l-2 border-transparent transition hover:border-brand hover:bg-surface-muted"
+                      style={{ animationDelay: `${i * 30}ms` }}
+                    >
                       <td className="px-5 py-3 align-top">
                         <p className="font-medium text-foreground">{t.title}</p>
                         {t.description && (
@@ -841,7 +839,7 @@ export default function ProjectDetailPage() {
             <Button onClick={onSaveEdit} disabled={editTaskMutation.isPending}>
               {editTaskMutation.isPending ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Saving…
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Saving...
                 </>
               ) : (
                 "Save changes"

@@ -1,28 +1,14 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { Eye, EyeOff, Loader2, Mail, ShieldCheck, UserIcon } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { Lock } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, ShieldCheck, UserCircle, User as UserIcon } from "lucide-react";
 import { api, getErrorMessage } from "@/services/api";
 import type { User } from "@/services/types";
 import { useAuth } from "@/services/authContext";
+import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-
-function initials(name: string) {
-  return (
-    name
-      .split(" ")
-      .map((s) => s[0])
-      .filter(Boolean)
-      .slice(0, 2)
-      .join("")
-      .toUpperCase() || "?"
-  );
-}
-
-const PersonIcon: LucideIcon = UserIcon;
+import { PageHeader } from "@/components/ui/PageHeader";
 
 function formatJoined(iso: string | null | undefined) {
   if (!iso) return "—";
@@ -86,7 +72,6 @@ export default function ProfilePage() {
     profileMutation.mutate(payload);
   };
 
-  // Password change
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -129,16 +114,15 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Profile</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your account details and password.</p>
-      </header>
+      <PageHeader
+        icon={UserCircle}
+        title="Profile"
+        description="Manage your account details and password."
+      />
 
       <Card>
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-subtle text-xl font-semibold text-brand-subtle-foreground ring-1 ring-brand-subtle-border shadow-glow">
-            {initials(user.name)}
-          </div>
+          <Avatar name={user.name} size="xl" />
           <div className="min-w-0">
             <p className="text-lg font-semibold text-foreground">{user.name}</p>
             <p className="truncate text-sm text-muted-foreground">{user.email}</p>
@@ -160,7 +144,7 @@ export default function ProfilePage() {
               Name
             </label>
             <div className="relative mt-1">
-              <PersonIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" aria-hidden />
+              <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" aria-hidden />
               <input
                 value={name}
                 onChange={(e) => {
@@ -204,7 +188,7 @@ export default function ProfilePage() {
             <Button type="submit" disabled={profileMutation.isPending}>
               {profileMutation.isPending ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Saving…
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Saving...
                 </>
               ) : (
                 "Save changes"
@@ -322,7 +306,7 @@ export default function ProfilePage() {
             <Button type="submit" disabled={passwordMutation.isPending}>
               {passwordMutation.isPending ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Updating…
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Updating...
                 </>
               ) : (
                 "Update password"

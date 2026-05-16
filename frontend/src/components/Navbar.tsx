@@ -3,15 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { ClipboardCheck, LogOut, Menu, Moon, Search, ShieldCheck, Sun, User as UserIcon, Users } from "lucide-react";
 import { useAuth } from "@/services/authContext";
 import { useTheme } from "@/services/themeContext";
+import { Avatar } from "./ui/Avatar";
 import { useClickOutside, useKey } from "./ui/hooks";
 import { useConfirm } from "./ui/ConfirmDialog";
-
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0]!.charAt(0).toUpperCase();
-  return (parts[0]!.charAt(0) + parts[parts.length - 1]!.charAt(0)).toUpperCase();
-}
 
 export default function Navbar({
   onOpenMobile,
@@ -76,12 +70,12 @@ export default function Navbar({
               onClick={onOpenPalette}
               className="hidden h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-xs text-muted-foreground transition hover:bg-surface-muted hover:text-foreground focus-ring sm:inline-flex"
               aria-label="Open command palette"
-              title="Search · ⌘K / Ctrl+K"
+              title="Search command palette"
             >
               <Search className="h-3.5 w-3.5" />
               <span>Search</span>
               <kbd className="rounded border border-border bg-surface-muted px-1 py-0.5 text-[10px] font-medium">
-                ⌘K
+                {"\u2318"}K
               </kbd>
             </button>
           )}
@@ -103,9 +97,7 @@ export default function Navbar({
                 aria-haspopup="menu"
                 aria-expanded={open}
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-subtle text-[11px] font-bold text-brand-subtle-foreground ring-1 ring-brand-subtle-border">
-                  {initials(user.name)}
-                </span>
+                <Avatar name={user.name} size="sm" />
                 <span className="hidden max-w-[120px] truncate text-xs font-medium text-foreground sm:inline">
                   {user.name}
                 </span>
@@ -115,10 +107,15 @@ export default function Navbar({
                   role="menu"
                   className="absolute right-0 z-50 mt-2 w-64 origin-top-right animate-fade-in overflow-hidden rounded-2xl border border-border bg-surface shadow-lg"
                 >
-                  <div className="border-b border-border px-4 py-3">
-                    <p className="truncate text-sm font-semibold text-foreground">{user.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">{user.email}</p>
-                    <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-brand-subtle px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-subtle-foreground ring-1 ring-brand-subtle-border">
+                  <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+                    <Avatar name={user.name} size="md" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-foreground">{user.name}</p>
+                      <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                  </div>
+                  <div className="px-4 pb-2 pt-2">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-brand-subtle px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-subtle-foreground ring-1 ring-brand-subtle-border">
                       <ShieldCheck className="h-3 w-3" /> {user.role}
                     </span>
                   </div>
