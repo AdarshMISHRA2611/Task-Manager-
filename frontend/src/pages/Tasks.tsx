@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import {
+  AlertTriangle,
   Calendar,
   LayoutGrid,
   ListChecks,
@@ -684,6 +685,19 @@ export default function TasksPage() {
             <Skeleton className="h-9 w-full" />
             <Skeleton className="h-9 w-full" />
           </div>
+        </Card>
+      ) : tasksQuery.isError ? (
+        <Card>
+          <EmptyState
+            icon={AlertTriangle}
+            title="Could not load tasks"
+            description={getErrorMessage(tasksQuery.error)}
+            action={
+              <Button variant="secondary" size="sm" onClick={() => tasksQuery.refetch()}>
+                Try again
+              </Button>
+            }
+          />
         </Card>
       ) : tasks.length === 0 ? (
         <Card>

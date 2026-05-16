@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { Search, ShieldCheck, Users } from "lucide-react";
+import { AlertTriangle, Search, ShieldCheck, Users } from "lucide-react";
 import { api, getErrorMessage } from "@/services/api";
 import { qk } from "@/services/queryClient";
 import type { User, UserRole } from "@/services/types";
 import { useAuth } from "@/services/authContext";
 import { Avatar } from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -126,6 +127,19 @@ export default function TeamPage() {
             <Skeleton className="h-12 w-full" />
             <Skeleton className="h-12 w-full" />
             <Skeleton className="h-12 w-full" />
+          </div>
+        ) : usersQuery.isError ? (
+          <div className="p-5">
+            <EmptyState
+              icon={AlertTriangle}
+              title="Could not load team"
+              description={getErrorMessage(usersQuery.error)}
+              action={
+                <Button variant="secondary" size="sm" onClick={() => usersQuery.refetch()}>
+                  Try again
+                </Button>
+              }
+            />
           </div>
         ) : filteredUsers.length === 0 ? (
           <div className="p-5">

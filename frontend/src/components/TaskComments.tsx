@@ -33,6 +33,7 @@ export default function TaskComments({ taskId }: Props) {
   const query = useQuery({
     queryKey: qk.taskComments(taskId),
     queryFn: async () => (await api.get<Comment[]>(`/api/tasks/${taskId}/comments`)).data,
+    refetchOnMount: "always",
   });
 
   const createMutation = useMutation({

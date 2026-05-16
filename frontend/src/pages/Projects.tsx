@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { FolderKanban, Plus, ArrowRight, Loader2 } from "lucide-react";
+import { AlertTriangle, FolderKanban, Plus, ArrowRight, Loader2 } from "lucide-react";
 import { api, getErrorMessage } from "@/services/api";
 import { qk } from "@/services/queryClient";
 import type { Project } from "@/services/types";
@@ -143,6 +143,19 @@ export default function ProjectsPage() {
             <Skeleton className="h-5 w-40" />
             <Skeleton className="h-5 w-3/4" />
             <Skeleton className="h-5 w-2/3" />
+          </div>
+        ) : projectsQuery.isError ? (
+          <div className="p-6">
+            <EmptyState
+              icon={AlertTriangle}
+              title="Could not load projects"
+              description={getErrorMessage(projectsQuery.error)}
+              action={
+                <Button variant="secondary" size="sm" onClick={() => projectsQuery.refetch()}>
+                  Try again
+                </Button>
+              }
+            />
           </div>
         ) : projects.length === 0 ? (
           <div className="p-6">

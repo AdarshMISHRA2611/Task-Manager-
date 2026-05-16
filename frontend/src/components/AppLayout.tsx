@@ -20,7 +20,11 @@ export default function AppLayout() {
       const isK = e.key === "k" || e.key === "K";
       if (isK && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setPaletteOpen((p) => !p);
+        setPaletteOpen((p) => {
+          if (p) return false;
+          if (document.querySelector('[role="dialog"]')) return p;
+          return true;
+        });
       }
     }
     document.addEventListener("keydown", onKey);

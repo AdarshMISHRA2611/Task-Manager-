@@ -81,6 +81,10 @@ def delete_comment(comment_id: int, current: CurrentUser, db: Session = Depends(
     comment = db.get(TaskComment, comment_id)
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
+    task = db.get(Task, comment.task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    _ensure_task_access(task, current, db)
     if comment.deleted_at is not None:
         raise HTTPException(status_code=400, detail="Comment already deleted")
     if comment.user_id != current.id and current.role != UserRole.Admin.value:
