@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ClipboardCheck, LogOut, Menu, Moon, ShieldCheck, Sun, User as UserIcon, Users } from "lucide-react";
+import { ClipboardCheck, LogOut, Menu, Moon, Search, ShieldCheck, Sun, User as UserIcon, Users } from "lucide-react";
 import { useAuth } from "@/services/authContext";
 import { useTheme } from "@/services/themeContext";
 import { useClickOutside, useKey } from "./ui/hooks";
@@ -13,7 +13,13 @@ function initials(name: string) {
   return (parts[0]!.charAt(0) + parts[parts.length - 1]!.charAt(0)).toUpperCase();
 }
 
-export default function Navbar({ onOpenMobile }: { onOpenMobile?: () => void }) {
+export default function Navbar({
+  onOpenMobile,
+  onOpenPalette,
+}: {
+  onOpenMobile?: () => void;
+  onOpenPalette?: () => void;
+}) {
   const { user, logout } = useAuth();
   const { resolved, toggle } = useTheme();
   const [open, setOpen] = useState(false);
@@ -64,6 +70,21 @@ export default function Navbar({ onOpenMobile }: { onOpenMobile?: () => void }) 
           </Link>
         </div>
         <div className="flex items-center gap-2">
+          {onOpenPalette && (
+            <button
+              type="button"
+              onClick={onOpenPalette}
+              className="hidden h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-xs text-muted-foreground transition hover:bg-surface-muted hover:text-foreground focus-ring sm:inline-flex"
+              aria-label="Open command palette"
+              title="Search · ⌘K / Ctrl+K"
+            >
+              <Search className="h-3.5 w-3.5" />
+              <span>Search</span>
+              <kbd className="rounded border border-border bg-surface-muted px-1 py-0.5 text-[10px] font-medium">
+                ⌘K
+              </kbd>
+            </button>
+          )}
           <button
             type="button"
             onClick={toggle}
