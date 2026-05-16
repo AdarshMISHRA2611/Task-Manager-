@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { api, getErrorMessage } from "@/services/api";
 import { qk } from "@/services/queryClient";
+import TaskComments from "@/components/TaskComments";
 import type {
   Project,
   ProjectMemberDetail,
@@ -909,6 +910,11 @@ export default function ProjectDetailPage() {
             <DateTimePicker value={etDue} onChange={setEtDue} placeholder="Pick a due date" />
           </div>
         </div>
+        {editingTask && (
+          <div className="mt-5 border-t border-border pt-5">
+            <TaskComments taskId={editingTask.id} />
+          </div>
+        )}
       </Modal>
     </div>
   );

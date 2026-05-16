@@ -12,7 +12,7 @@ from sqlalchemy import text
 
 from backend.config import settings
 from backend.database.database import Base, SessionLocal, engine
-from backend.routers import auth, dashboard, projects, tasks, users
+from backend.routers import auth, comments, dashboard, projects, tasks, users
 
 
 @asynccontextmanager
@@ -52,6 +52,7 @@ else:
 app.include_router(auth.router)
 app.include_router(projects.router)
 app.include_router(tasks.router)
+app.include_router(comments.router)
 app.include_router(dashboard.router)
 app.include_router(users.router)
 

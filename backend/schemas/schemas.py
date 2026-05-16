@@ -119,6 +119,25 @@ class TaskOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+# ---------- Comments ----------
+
+class CommentCreate(BaseModel):
+    task_id: int
+    body: str = Field(..., min_length=1, max_length=2000)
+
+
+class CommentOut(BaseModel):
+    id: int
+    task_id: int
+    user_id: int
+    user_name: str
+    body: str
+    deleted_at: Optional[datetime] = None
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 # ---------- Dashboard ----------
 
 class DashboardOut(BaseModel):

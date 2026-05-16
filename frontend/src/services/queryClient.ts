@@ -19,6 +19,7 @@ export const qk = {
   project: (id: number) => ["project", id] as const,
   projectMembers: (id: number) => ["projectMembers", id] as const,
   tasks: ["tasks"] as const,
+  taskComments: (id: number) => ["taskComments", id] as const,
   dashboard: ["dashboard"] as const,
   users: ["users"] as const,
 };

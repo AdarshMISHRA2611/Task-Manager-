@@ -7,6 +7,7 @@ from sqlalchemy import (
     Column,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -84,3 +85,21 @@ class Task(Base):
 
     assignee = relationship("User", back_populates="tasks")
     project = relationship("Project", back_populates="tasks")
+    comments = relationship("TaskComment", back_populates="task", cascade="all, delete-orphan")
+
+
+class TaskComment(Base):
+    __tablename__ = "task_comments"
+    __table_args__ = (
+        Index("ix_task_comments_task_id_created_at", "task_id", "created_at"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    task_id = Column(Integer, ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    body = Column(Text, nullable=False)
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    task = relationship("Task", back_populates="comments")
+    user = relationship("User")

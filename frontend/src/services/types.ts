@@ -46,3 +46,13 @@ export interface Dashboard {
   completed_tasks: number;
   overdue_tasks: number;
 }
+
+export interface Comment {
+  id: number;
+  task_id: number;
+  user_id: number;
+  user_name: string;
+  body: string;
+  deleted_at: string | null;
+  created_at: string;
+}
